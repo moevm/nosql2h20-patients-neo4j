@@ -1,0 +1,17 @@
+version: '3.8'
+services:
+  neo4j:
+    image: neo4j:latest
+    environment:
+      - NEO4J_AUTH=none
+    ports:
+      - '7687:7687'
+  app:
+    build: .
+    command: python App.py
+    volumes:
+      - .:/src
+    ports:
+      - '8080:8080'
+    depends_on:
+      - neo4j
