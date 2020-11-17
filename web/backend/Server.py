@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_restful import Api
-from TVMainPageAPI import TVMainPage
+from DataBase.TVMainPageAPI import TVMainPage
 
 class Server:
     host = str

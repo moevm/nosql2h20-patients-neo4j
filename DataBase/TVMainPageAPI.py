@@ -1,5 +1,5 @@
 from flask_restful import Resource, reqparse
-from DiseaseModel import DiseaseModel
+from DataBase.DiseaseModel import  DiseaseModel
 
 class TVMainPage(Resource):
     def get(self):
