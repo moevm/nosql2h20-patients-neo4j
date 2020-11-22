@@ -1,6 +1,8 @@
 from flask import Flask
 from flask_restful import Api
-from DataBase.TVMainPageAPI import TVMainPage
+from DataBase.DataBaseAPI import DataBaseAPI_contact, DataBaseAPI_sickPerson, \
+                                 DataBaseAPI_addContact, DataBaseAPI_desease, DataBaseAPI_addDesease, \
+                                 DataBaseAPI_getAllDeseaseForRequiredPerson
 
 class Server:
     host = str
@@ -14,7 +16,12 @@ class Server:
         self.initRoutes()
 
     def initRoutes(self):
-        self.api.add_resource(TVMainPage, '/')
+        self.api.add_resource(DataBaseAPI_contact, '/contact')
+        self.api.add_resource(DataBaseAPI_sickPerson, '/sickPerson')
+        self.api.add_resource(DataBaseAPI_desease, '/desease')
+        self.api.add_resource(DataBaseAPI_addDesease, '/addDesease')
+        self.api.add_resource(DataBaseAPI_addContact, '/addContact')
+        self.api.add_resource(DataBaseAPI_getAllDeseaseForRequiredPerson, '/getPersonDeseases')
 
     def run(self):
         self.app.run(self.host, self.port)
