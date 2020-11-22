@@ -5,6 +5,9 @@ import LoginAdmin from "./LoginAdmin";
 import {check} from "../login";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import AdminMainPage from "./AdminMainPage";
+import Logout from "./Logout";
+import Menu from "./Menu";
+import PatientBase from "./PatientBase";
 
 function App() {
     let [login, setLogin] = React.useState(false);
@@ -20,6 +23,9 @@ function App() {
                         {login ? <AdminMainPage/> : <MainPage/>}
                     </Route> 
                     <Route path="/login" exact component={LoginAdmin}/>
+                    <Route path="/logout" exact component={Logout}/>
+                    <Route path="/menu" exact component={Menu}/>
+                    <Route path="/patientbase" exact component={PatientBase}/>
                 </Switch>
             </Router>
         </React.Fragment>

@@ -11,10 +11,10 @@ function Navbar() {
             </a>
             {isAdmin ? (
                 <div style={{ float: "right" }}>
-                    <a className="w3-bar-item w3-button" href="/">
+                    <a className="w3-bar-item w3-button" href="/menu">
                         Menu
                     </a>
-                    <a className="w3-bar-item w3-button" href="/">
+                    <a className="w3-bar-item w3-button" href="/logout">
                         Logout
                     </a>
                 </div>
