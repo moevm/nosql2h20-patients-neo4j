@@ -1,11 +1,8 @@
 from flask_restful import Resource, reqparse
-from DataBase.DiseaseModel import Contact, SickPerson, Desease
+from DataBase.DiseaseModel import Contact, SickPerson, Disease
 import datetime
 
-class DataBaseAPI_contact( Resource ):
-    def get(self):
-        return  [ [ { "name" : Contact.name } ] for Contact in Contact.nodes ]
-
+class PostContact(Resource):
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument('passportNumber', type=int)
@@ -20,12 +17,9 @@ class DataBaseAPI_contact( Resource ):
                 birthDay=datetime.datetime.strptime(args['birthDay'],'%Y-%m-%d').date(),
                 country=args['country'], city=args['city'],
                 passportNumber=args['passportNumber']).save()
-        return self.get()
+        return "New contact is added"
 
-class DataBaseAPI_sickPerson( Resource ):
-    def get(self):
-        return  [ [ { "name" : SickPerson.name } ] for SickPerson in SickPerson.nodes ]
-
+class PostSickPerson(Resource):
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument('passportNumber', type=int)
@@ -37,29 +31,21 @@ class DataBaseAPI_sickPerson( Resource ):
         parser.add_argument('city', type=str)
         args = parser.parse_args()
 
-        SickPerson(
-                name=args['name'], surname=args['surname'], age=args['age'],
-                birthDay=datetime.datetime.strptime(args['birthDay'],'%Y-%m-%d').date(),
-                country=args['country'], city=args['city'],
-                passportNumber=args['passportNumber']).save()
-        return self.get()
+        SickPerson( name=args['name'], surname=args['surname'], age=args['age'],
+                    birthDay=datetime.datetime.strptime(args['birthDay'],'%Y-%m-%d').date(),
+                    country=args['country'], city=args['city'],
+                    passportNumber=args['passportNumber']).save()
+        return "New sickPerson is added"
 
-class DataBaseAPI_desease( Resource ):
-    def get(self):
-        return  [ [ { "name" : Desease.name } ] for Desease in Desease.nodes ]
-
+class PostDisease(Resource):
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument('name', type=str)
-        parser.add_argument('deseaseStart', type=str)
-        parser.add_argument('deseaseEnd', type=str)
         args = parser.parse_args()
-        Desease(name=args['name'],
-                deseaseStart=datetime.datetime.strptime(args['deseaseStart'],'%Y-%m-%d').date(),
-                deseaseEnd=datetime.datetime.strptime(args['deseaseEnd'],'%Y-%m-%d').date()).save()
-        return self.get()
+        Disease(name=args['name']).save()
+        return "New disease is added"
 
-class DataBaseAPI_addContact( Resource ):
+class PostContactToPerson(Resource):
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument('sickPassportNumber', type=int)
@@ -74,37 +60,41 @@ class DataBaseAPI_addContact( Resource ):
         for contact in Contact.nodes:
             if contact.passportNumber == args['contactPassportNumber']:
                 _contact = contact
-
         _sickPerson.contacts.connect( _contact )
+        return "sickPerson was taken new contact"
 
-class DataBaseAPI_addDesease( Resource ):
+class AddDiseaseToPerson(Resource):
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument('sickPassportNumber', type=int)
         parser.add_argument('name', type=str)
+        parser.add_argument('diseaseStart', type=str)
+        parser.add_argument('diseaseEnd', type=str)
         args = parser.parse_args()
         _sickPerson = {}
-        _desease = {}
+        _disease = {}
         for sickPerson in SickPerson.nodes:
             if sickPerson.passportNumber == args['sickPassportNumber']:
                 _sickPerson = sickPerson
 
-        for desease in Desease.nodes:
-            if desease.name == args['name']:
-                _desease = desease
+        for disease in Disease.nodes:
+            if disease.name == args['name']:
+                _disease = disease
+        _sickPerson.diseases.connect(
+                _disease,
+                { 'deseaseStart' : datetime.datetime.strptime(args['diseaseStart'],'%Y-%m-%d').date(),
+                  'deseaseEnd' : datetime.datetime.strptime(args['diseaseEnd'],'%Y-%m-%d').date() } )
+        return "sickPerson was taken new disease"
 
-        _sickPerson.deseases.connect( _desease )
-
-class DataBaseAPI_getAllDeseaseForRequiredPerson( Resource ):
+class GetAllDiseaseForRequiredPerson(Resource):
     def get(self):
         parser = reqparse.RequestParser()
         parser.add_argument('sickPassportNumber', type=int)
         args = parser.parse_args()
-        _sickPerson = {}
 
+        _sickPerson = {}
         for sickPerson in SickPerson.nodes:
             if sickPerson.passportNumber == args['sickPassportNumber']:
                 _sickPerson = sickPerson
 
-        return  [ [ { "name" : Desease.name } ] for Desease in _sickPerson.deseases ]
-
+        return  [ [ { "name" : Disease.name } ] for Disease in _sickPerson.diseases ]

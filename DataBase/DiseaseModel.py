@@ -1,5 +1,12 @@
 from neomodel import StringProperty, StructuredNode, IntegerProperty,\
-                     RelationshipTo, DateProperty
+                     RelationshipTo, DateProperty, StructuredRel
+
+class HasDisease(StructuredRel):
+    diseaseStart = DateProperty()
+    diseaseEnd = DateProperty()
+
+class HasContact(StructuredRel):
+    someDefaultData = "lalala"
 
 class Contact(StructuredNode):
     passportNumber = IntegerProperty(unique_index=True)
@@ -10,17 +17,8 @@ class Contact(StructuredNode):
     country = StringProperty()
     city = StringProperty()
 
-class Desease(StructuredNode):
+class Disease(StructuredNode):
     name = StringProperty(unique_index=True)
-    deseaseStart = DateProperty()
-    deseaseEnd = DateProperty()
-
-class HasDesease(StructuredNode):
-    deseaseStart = DateProperty()
-    deseaseEnd = DateProperty()
-
-class HasContact(StructuredNode):
-    someDefaultData = "lalala"
 
 class SickPerson(StructuredNode):
     passportNumber = IntegerProperty(unique_index=True)
@@ -30,5 +28,5 @@ class SickPerson(StructuredNode):
     birthDay = DateProperty()
     country = StringProperty()
     city = StringProperty()
-    contacts = RelationshipTo( Contact, HasContact )
-    deseases = RelationshipTo( Desease, HasDesease )
+    contacts = RelationshipTo( Contact, HasContact, model=HasContact )
+    diseases = RelationshipTo(Disease, HasDisease, model=HasDisease)
