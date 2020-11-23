@@ -15,17 +15,8 @@ class PatientResume extends Component {
 
     handleSubmit(event) {
         event.preventDefault();
-        const form = event.target;
-        const data = new FormData(form);
-    
-        var object = {};
-        data.forEach(function(value, key){
-            object[key] = value;
-        });
-        var json = JSON.stringify(object);
-        console.log(json)
-        Axios.post("/postSickPerson", {json})
-      }
+        Axios.post("/postSickPerson", new FormData(event.target))
+    }
 
       render() {
           return (
