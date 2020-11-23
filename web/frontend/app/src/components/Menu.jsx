@@ -12,7 +12,7 @@ class Menu extends Component {
                     Statistics
                 </a>
 
-                <a className="w3-button w3-round" href="#"
+                <a className="w3-button w3-round" href="/patientresume"
                     style={{ padding: "2rem", marginTop: "1rem" }}>
                     Add Patient
                 </a>
