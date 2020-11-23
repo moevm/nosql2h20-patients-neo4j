@@ -15,7 +15,32 @@ class PatientResume extends Component {
 
     handleSubmit(event) {
         event.preventDefault();
-        Axios.post("/postSickPerson", new FormData(event.target))
+        const data = new FormData(event.target);
+        const diseaseData = new FormData();
+        const patientData = new FormData();
+
+        let numberInputPatientData = 7;
+        let i = 0;
+        for (let [name, value] of data) {
+            if(i < numberInputPatientData) {
+                patientData.append(name, value);
+            } else {
+                diseaseData.append(name, value)
+            }
+            i++;
+        }
+        const namePassport = "passportNumber";
+        const passportNumber = data.get(namePassport);
+        diseaseData.append("sickPassportNumber", passportNumber);
+
+        const nameDisease = "disease"
+        const disease = data.get(nameDisease);
+        diseaseData.delete(nameDisease);
+        diseaseData.append("name", disease);
+
+
+        // Axios.post("/postSickPerson", patientData);
+        // Axios.post("/addDiseaseToPerson", diseaseData);
     }
 
       render() {
@@ -90,15 +115,46 @@ class PatientResume extends Component {
                                     className="w3-half"
                             />
                             </div>
-                            <div className="w3-center" style={{padding: "1rem"}}>
+                            <h2 className="w3-center">Information of patient's diseases</h2>
+                            <div className="w3-container" style={input}>
+                                <label htmlFor="disease" className="w3-quarter">Disease:</label>
+                                <input
+                                    name="disease" 
+                                    type="text"
+                                    data-parse="uppercase"
+                                    className="w3-half"
+                                />
+                            </div>
+                            <div className="w3-container" style={input}>
+                            <label htmlFor="diseaseStart" className="w3-quarter">Date of illness:</label>
+                                <input
+                                    name="diseaseStart" 
+                                    type="text"
+                                    data-parse="date"
+                                    className="w3-half"
+                                />
+                            </div>
+                            <div className="w3-container" style={input}>
+                            <label htmlFor="diseaseEnd" className="w3-quarter">Recovery date:</label>
+                                <input
+                                    name="diseaseEnd" 
+                                    type="text"
+                                    data-parse="date"
+                                    className="w3-half"
+                                />
+                            </div>
+                            <div className="w3-center" style={input}>
                                 <button className="w3-button w3-blue w3-round">
                                     Save
                                 </button>
                             </div>
-                            <h2 className="w3-center">Information of patient</h2>
                         </div>
                     </div>
+                    <div class="w3-container w3-black">
+                        <h5>Footer</h5>
+                    </div>
               </form>
+              
           );
       }
 }
