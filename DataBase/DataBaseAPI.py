@@ -1,6 +1,6 @@
 from flask_restful import Resource, reqparse
 from DataBase.DiseaseModel import Contact, SickPerson, Disease
-import datetime
+import datetime, json
 
 class PostContact(Resource):
     def post(self):
@@ -25,12 +25,14 @@ class PostSickPerson(Resource):
         parser.add_argument('passportNumber', type=int)
         parser.add_argument('name', type=str)
         parser.add_argument('surname', type=str)
+        # parser.add_argument('gender', type=str)
         parser.add_argument('age', type=int)
         parser.add_argument('birthDay', type=str)
         parser.add_argument('country', type=str)
         parser.add_argument('city', type=str)
         args = parser.parse_args()
 
+        #gender=args['gender'],
         SickPerson( name=args['name'], surname=args['surname'], age=args['age'],
                     birthDay=datetime.datetime.strptime(args['birthDay'],'%Y-%m-%d').date(),
                     country=args['country'], city=args['city'],
@@ -67,7 +69,7 @@ class AddDiseaseToPerson(Resource):
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument('sickPassportNumber', type=int)
-        parser.add_argument('name', type=str)
+        parser.add_argument('diseaseName', type=str)
         parser.add_argument('diseaseStart', type=str)
         parser.add_argument('diseaseEnd', type=str)
         args = parser.parse_args()
@@ -78,12 +80,12 @@ class AddDiseaseToPerson(Resource):
                 _sickPerson = sickPerson
 
         for disease in Disease.nodes:
-            if disease.name == args['name']:
+            if disease.name == args['diseaseName']:
                 _disease = disease
         _sickPerson.diseases.connect(
                 _disease,
-                { 'deseaseStart' : datetime.datetime.strptime(args['diseaseStart'],'%Y-%m-%d').date(),
-                  'deseaseEnd' : datetime.datetime.strptime(args['diseaseEnd'],'%Y-%m-%d').date() } )
+                { 'diseaseStart' : datetime.datetime.strptime(args['diseaseStart'],'%Y-%m-%d').date(),
+                  'diseaseEnd' : datetime.datetime.strptime(args['diseaseEnd'],'%Y-%m-%d').date() } )
         return "sickPerson was taken new disease"
 
 class GetAllDiseaseForRequiredPerson(Resource):
@@ -98,3 +100,105 @@ class GetAllDiseaseForRequiredPerson(Resource):
                 _sickPerson = sickPerson
 
         return  [ [ { "name" : Disease.name } ] for Disease in _sickPerson.diseases ]
+
+# Получить список всех больных
+class GetAllPatients(Resource):
+    def get(self):
+
+        _sickPerson = {}
+
+        for sickPerson in SickPerson.nodes:
+            _sickPerson = sickPerson
+        return [{"passportNumber": _sickPerson.passportNumber},
+                {"name": _sickPerson.name},
+                {"surname": _sickPerson.surname},
+                {"age": _sickPerson.age},
+                #[[{"diseases": Disease.name}] for Disease in _sickPerson.diseases],
+                # {"gender": _sickPerson.gender},
+                {"country": _sickPerson.country},
+                {"city": _sickPerson.city}
+               ]
+
+
+# Получить данные пациента по паспорту
+class GetPatientWithPassport(Resource):
+    def get(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('passportNumber', type=int)
+        args = parser.parse_args()
+
+        _sickPerson = {}
+        for sickPerson in SickPerson.nodes:
+            if sickPerson.passportNumber == args['passportNumber']:
+                _sickPerson = sickPerson
+
+        return [{"passportNumber": _sickPerson.passportNumber},
+                {"name": _sickPerson.name},
+                {"surname": _sickPerson.surname},
+                {"age": _sickPerson.age},
+                [[{"diseases": Disease.name}] for Disease in _sickPerson.diseases],
+                # {"gender": _sickPerson.gender},
+                {"country": _sickPerson.country},
+                {"city": _sickPerson.city}
+               ]
+
+# Получить данные пациента по имени
+class GetPatientsWithName(Resource):
+    def get(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('name', type=str)
+        args = parser.parse_args()
+
+        _sickPerson = {}
+        for sickPerson in SickPerson.nodes:
+            if sickPerson.name == args['name']:
+                _sickPerson = sickPerson
+
+        return [{"passportNumber": _sickPerson.passportNumber},
+                {"name": _sickPerson.name},
+                {"surname": _sickPerson.surname},
+                {"age": _sickPerson.age},
+                [[{"diseases": Disease.name}] for Disease in _sickPerson.diseases],
+                # {"gender": _sickPerson.gender},
+                {"country": _sickPerson.country},
+                {"city": _sickPerson.city}
+               ]
+
+
+# Получить данные пациента по фамилии
+class GetPatientWithSurname(Resource):
+    def get(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('surname', type=str)
+        args = parser.parse_args()
+
+        _sickPerson = {}
+        for sickPerson in SickPerson.nodes:
+            if sickPerson.surname == args['surname']:
+                _sickPerson = sickPerson
+
+        return [{"passportNumber": _sickPerson.passportNumber},
+                {"name": _sickPerson.name},
+                {"surname": _sickPerson.surname},
+                {"age": _sickPerson.age},
+                [[{"diseases": Disease.name}] for Disease in _sickPerson.diseases],
+                # {"gender": _sickPerson.gender},
+                {"country": _sickPerson.country},
+                {"city": _sickPerson.city}
+                ]
+
+# Запрос для фильтрации по возрасту
+#class GetPatientWithAgeForPagePatienBase(Resource):
+
+
+# Запрос для фильтрации по выбранным болезням
+#class GetPatientWithDiseaseForPagePatienBase(Resource):
+
+# Запрос для фильтрации от гендера
+#class GetPatientWithMaleForPagePatienBase(Resource):
+
+# Запрос для фильтрации по странам
+#class GetPatientWithCountryForPagePatienBase(Resource):
+
+# Запрос для фильтрации по городам
+#class GetPatientWithCityForPagePatienBase(Resource):
