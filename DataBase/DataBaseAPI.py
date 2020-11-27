@@ -104,27 +104,27 @@ class GetAllPatients(Resource):
     def get(self):
         responce = ""
         for _sickPerson in SickPerson.nodes:
-            responce += ", { 'patientInfo' : { "
-            responce += "'passportNumber' : " + str(_sickPerson.passportNumber) + ", "
-            responce += "'name' : " + str(_sickPerson.name) + ", "
-            responce += "'surname' : " + str(_sickPerson.surname) + ", "
-            responce += "'gender' : " + str(_sickPerson.gender) + ", "
-            responce += "'age' : " + str(_sickPerson.age) + ", "
-            responce += "'birthDay' : " + str(_sickPerson.birthDay) + ", "
-            responce += "'country' : " + str(_sickPerson.country) + ", "
-            responce += "'city' : " + str(_sickPerson.city)
-            responce += " }, 'patientDiseases' : ["
+            responce += ', { "patientInfo" : { '
+            responce += '"passportNumber" : "' + str(_sickPerson.passportNumber) + '", '
+            responce += '"name" : "' + str(_sickPerson.name) + '", '
+            responce += '"surname" : "' + str(_sickPerson.surname) + '", '
+            responce += '"gender" : "' + str(_sickPerson.gender) + '", '
+            responce += '"age" : "' + str(_sickPerson.age) + '", '
+            responce += '"birthDay" : "' + str(_sickPerson.birthDay) + '", '
+            responce += '"country" : "' + str(_sickPerson.country) + '", '
+            responce += '"city" : "' + str(_sickPerson.city)
+            responce += '" }, "patientDiseases" : ['
             responceSave = responce
             for _disease in _sickPerson.diseases:
                 responce += " {"
-                responce += "'name' : " + _disease.name + ", "
-                responce += "'diseaseStart' : " + str(_sickPerson.diseases.relationship(_disease).diseaseStart) + ", "
-                responce += "'diseaseEnd' : " + str(_sickPerson.diseases.relationship(_disease).diseaseEnd) + " "
+                responce += '"name" : "' + _disease.name + '", '
+                responce += '"diseaseStart" : "' + str(_sickPerson.diseases.relationship(_disease).diseaseStart) + '", '
+                responce += '"diseaseEnd" : "' + str(_sickPerson.diseases.relationship(_disease).diseaseEnd) + '" '
                 responce += "} , "
             if responce != responceSave:
                 responce = responce[0:len(responce)-2]
             responce += "] }"
-        return responce[2:]
+        return "[ " + responce[2:] + " ]"
 
 # Получить данные пациента по паспорту
 class GetPatientWithPassport(Resource):
