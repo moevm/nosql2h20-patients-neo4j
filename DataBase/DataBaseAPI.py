@@ -171,7 +171,6 @@ class GetPatientsWithName(Resource):
                 {"city": _sickPerson.city}
                ]
 
-
 # Получить данные пациента по фамилии
 class GetPatientWithSurname(Resource):
     def get(self):
@@ -217,10 +216,21 @@ class GetPatientWithDisease(Resource):
                 {"city": _sickPerson.city}
                 ]
 
-
 # Запрос для фильтра
 class GetPatientWithFilter(Resource):
     def get(self):
+        def printOut(responce, _sickPerson):
+            responce += '{"passportNumber" : "' + str(_sickPerson.passportNumber) + '", '
+            responce += '"name" : "' + str(_sickPerson.name) + '", '
+            responce += '"surname" : "' + str(_sickPerson.surname) + '", '
+            responce += '"gender" : "' + str(_sickPerson.gender) + '", '
+            responce += '"age" : "' + str(_sickPerson.age) + '", '
+            responce += '"country" : "' + str(_sickPerson.country) + '", '
+            responce += '"city" : "' + str(_sickPerson.city)
+            responce += '" }, "patientDiseases" : ['
+            responce += '}"'
+            return responce
+
         parser = reqparse.RequestParser()
         parser.add_argument('from_age', type=int)
         parser.add_argument('to_age', type=int)
@@ -230,8 +240,8 @@ class GetPatientWithFilter(Resource):
         parser.add_argument('city', type=str)
         args = parser.parse_args()
 
-        responce = ""
         _sickPerson = {}
+        responce = ""
         for sickPerson in SickPerson.nodes:
             # DISEASE
             for Disease in sickPerson.diseases:
@@ -243,36 +253,30 @@ class GetPatientWithFilter(Resource):
                             # COUNTRY -> CITY
                             if sickPerson.country == args['country'] and sickPerson.city == args['city']:
                                 _sickPerson = sickPerson
+                                responce = printOut(responce, _sickPerson)
                             # COUNTRY
                             else:
                                 if sickPerson.country == args['country']:
                                     _sickPerson = sickPerson
-                                # WORLD
-                                if sickPerson.country == "World":
+                                    responce = printOut(responce, _sickPerson)
+                            # WORLD
+                                if args['country'] == 'World':
                                     _sickPerson = sickPerson
+                                    responce = printOut(responce, _sickPerson)
                         # ALL
-                        if sickPerson.gender == "World":
-                            # COUNTRY -> CITY
-                            if sickPerson.country == args['country'] and sickPerson.city == args['city']:
-                                _sickPerson = sickPerson
-                            # COUNTRY
-                            else:
-                                if sickPerson.country == args['country']:
+                        else:
+                            if args['gender'] == 'All':
+                                # COUNTRY -> CITY
+                                if sickPerson.country == args['country'] and sickPerson.city == args['city']:
                                     _sickPerson = sickPerson
+                                    responce = printOut(responce, _sickPerson)
+                                # COUNTRY
+                                else:
+                                    if sickPerson.country == args['country']:
+                                        _sickPerson = sickPerson
+                                        responce = printOut(responce, _sickPerson)
                                 # WORLD
-                                if sickPerson.country == "World":
+                                if args['country'] == 'World':
                                     _sickPerson = sickPerson
-
-        return [{"passportNumber": _sickPerson.passportNumber},
-                            {"name": _sickPerson.name},
-                            {"surname": _sickPerson.surname},
-                            {"age": _sickPerson.age},
-                            [[{"diseases": Disease.name}] for Disease in _sickPerson.diseases],
-                            {"gender": _sickPerson.gender},
-                            {"country": _sickPerson.country},
-                            {"city": _sickPerson.city}
-                            ]
-
-
-
-
+                                    responce = printOut(responce, _sickPerson)
+        return "[ " + responce + " ]"
