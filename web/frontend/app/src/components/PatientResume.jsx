@@ -1,5 +1,7 @@
 import React, {Component} from 'react'
 import Axios from "axios";
+import '../css/PatientResume.css'
+import userLogo from '../assets/img/user.png'
 
 
 const input = {
@@ -10,11 +12,42 @@ const input = {
 class PatientResume extends Component {
     constructor() {
         super();
+        this.state = {
+            passportNumber: "",
+            name: "",
+            surname: "",
+            age: "",
+            birthDay: "",
+            country: "",
+            city: "",
+            diseaseName: "",
+            diseaseStart: "",
+            diseaseEnd: "",
+            invalid: false,
+            displayErrors: false,
+        };
+        this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+    }
+
+    handleChange(event) {
+        const name = event.target.name;
+        const value = event.target.value;
+    
+        this.setState({
+            [name]: value
+        });
     }
 
     handleSubmit(event) {
         event.preventDefault();
+        if (!event.target.checkValidity()) {
+            this.setState({
+                invalid: true,
+                displayErrors: true,
+            });
+            return;
+        }
         const data = new FormData(event.target);
         const diseaseData = new FormData();
         const patientData = new FormData();
@@ -33,29 +66,41 @@ class PatientResume extends Component {
         const passportNumber = data.get(namePassport);
         diseaseData.append("sickPassportNumber", passportNumber);
 
-        const nameDisease = "disease"
-        const disease = data.get(nameDisease);
-        diseaseData.delete(nameDisease);
-        diseaseData.append("name", disease);
-
-
+        this.setState({
+            passportNumber: "",
+            name: "",
+            surname: "",
+            age: "",
+            birthDay: "",
+            country: "",
+            city: "",
+            diseaseName: "",
+            diseaseStart: "",
+            diseaseEnd: "",
+            invalid: false,
+            displayErrors: false,
+        });
+        
         Axios.post("/postSickPerson", patientData);
         Axios.post("/addDiseaseToPerson", diseaseData);
     }
 
       render() {
           return (
-                <form onSubmit={this.handleSubmit}>
+                <form onSubmit={this.handleSubmit} className={this.state.displayErrors ? 'displayErrors' : ''} noValidate>
                     <div className="w3-row" style={{display: "flex",alignItems: "stretch"}}>
                         <div className="w3-quarter w3-border">
-                            <h1 className="w3-center"> Photo</h1>
-                            <div className="w3-container" style={{input}}>
+                            <img src={userLogo} alt="User Logo" className="w3-image w3-center" style={input}></img>
+                            <div className="w3-container" style={input}>
                                 <label htmlFor="passportNumber" className="w3-row">Passport:</label>
                                 <input
                                     name="passportNumber"
                                     type="text"
-                                    data-parse="uppercase"
+                                    value = {this.state.passportNumber}
+                                    onChange={this.handleChange}
                                     className="w3-row"
+                                    pattern="\d+" 
+                                    required
                                 />
                             </div>
                         </div>
@@ -66,8 +111,10 @@ class PatientResume extends Component {
                                 <input
                                     name="name"
                                     type="text"
-                                    data-parse="uppercase"
+                                    value = {this.state.name}
+                                    onChange={this.handleChange}
                                     className="w3-half"
+                                    required
                                 />
                             </div>
                             <div className="w3-container" style={input}>
@@ -75,8 +122,10 @@ class PatientResume extends Component {
                                 <input
                                     name="surname"
                                     type="text"
-                                    data-parse="uppercase"
+                                    value = {this.state.surname}
+                                    onChange={this.handleChange}
                                     className="w3-half"
+                                    required
                                 />
                             </div>
                             <div className="w3-container" style={input}>
@@ -84,8 +133,11 @@ class PatientResume extends Component {
                                 <input
                                     name="age"
                                     type="text"
-                                    data-parse="uppercase"
+                                    value = {this.state.age}
+                                    onChange={this.handleChange}
                                     className="w3-half"
+                                    pattern="[0-9]{1,2}"
+                                    required
                             />
                             </div>
                             <div className="w3-container" style={input}>
@@ -93,8 +145,12 @@ class PatientResume extends Component {
                                 <input
                                     name="birthDay"
                                     type="text"
-                                    data-parse="date"
+                                    value = {this.state.birthDay}
+                                    onChange={this.handleChange}
                                     className="w3-half"
+                                    placeholder="YYYY-MM-DD"
+                                    pattern="([12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))"
+                                    required
                             />
                             </div>
                             <div className="w3-container" style={input}>
@@ -102,8 +158,10 @@ class PatientResume extends Component {
                                 <input
                                     name="country"
                                     type="text"
-                                    data-parse="uppercase"
+                                    value = {this.state.country}
+                                    onChange={this.handleChange}
                                     className="w3-half"
+                                    required
                             />
                             </div>
                             <div className="w3-container" style={input}>
@@ -111,18 +169,22 @@ class PatientResume extends Component {
                                 <input
                                     name="city"
                                     type="text"
-                                    data-parse="uppercase"
+                                    value = {this.state.city}
+                                    onChange={this.handleChange}
                                     className="w3-half"
+                                    required
                             />
                             </div>
                             <h2 className="w3-center">Information of patient's diseases</h2>
                             <div className="w3-container" style={input}>
-                                <label htmlFor="disease" className="w3-quarter">Disease:</label>
+                                <label htmlFor="diseaseName" className="w3-quarter">Disease:</label>
                                 <input
-                                    name="disease" 
+                                    name="diseaseName" 
                                     type="text"
-                                    data-parse="uppercase"
+                                    value = {this.state.diseaseName}
+                                    onChange={this.handleChange}
                                     className="w3-half"
+                                    required
                                 />
                             </div>
                             <div className="w3-container" style={input}>
@@ -130,8 +192,12 @@ class PatientResume extends Component {
                                 <input
                                     name="diseaseStart" 
                                     type="text"
-                                    data-parse="date"
+                                    value = {this.state.diseaseStart}
+                                    onChange={this.handleChange}
                                     className="w3-half"
+                                    placeholder="YYYY-MM-DD"
+                                    pattern="([12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))"
+                                    required
                                 />
                             </div>
                             <div className="w3-container" style={input}>
@@ -139,8 +205,12 @@ class PatientResume extends Component {
                                 <input
                                     name="diseaseEnd" 
                                     type="text"
-                                    data-parse="date"
+                                    value = {this.state.diseaseEnd}
+                                    onChange={this.handleChange}
                                     className="w3-half"
+                                    placeholder="YYYY-MM-DD"
+                                    pattern="([12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))"
+                                    required
                                 />
                             </div>
                             <div className="w3-center" style={input}>
@@ -150,7 +220,7 @@ class PatientResume extends Component {
                             </div>
                         </div>
                     </div>
-                    <div class="w3-container w3-black">
+                    <div className="w3-container w3-black">
                         <h5>Footer</h5>
                     </div>
               </form>
