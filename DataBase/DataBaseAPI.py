@@ -8,6 +8,7 @@ class PostContact(Resource):
         parser.add_argument('passportNumber', type=int)
         parser.add_argument('name', type=str)
         parser.add_argument('surname', type=str)
+        parser.add_argument('gender', type=str)
         parser.add_argument('age', type=int)
         parser.add_argument('birthDay', type=str)
         parser.add_argument('country', type=str)
@@ -15,7 +16,7 @@ class PostContact(Resource):
         args = parser.parse_args()
         Contact(name=args['name'], surname=args['surname'], age=args['age'],
                 birthDay=datetime.datetime.strptime(args['birthDay'],'%Y-%m-%d').date(),
-                country=args['country'], city=args['city'],
+                country=args['country'], city=args['city'], gender=args['gender'],
                 passportNumber=args['passportNumber']).save()
         return "New contact is added"
 
@@ -25,17 +26,15 @@ class PostSickPerson(Resource):
         parser.add_argument('passportNumber', type=int)
         parser.add_argument('name', type=str)
         parser.add_argument('surname', type=str)
-        # parser.add_argument('gender', type=str)
+        parser.add_argument('gender', type=str)
         parser.add_argument('age', type=int)
         parser.add_argument('birthDay', type=str)
         parser.add_argument('country', type=str)
         parser.add_argument('city', type=str)
         args = parser.parse_args()
-
-        #gender=args['gender'],
         SickPerson( name=args['name'], surname=args['surname'], age=args['age'],
                     birthDay=datetime.datetime.strptime(args['birthDay'],'%Y-%m-%d').date(),
-                    country=args['country'], city=args['city'],
+                    country=args['country'], city=args['city'], gender=args['gender'],
                     passportNumber=args['passportNumber']).save()
         return "New sickPerson is added"
 
@@ -101,24 +100,31 @@ class GetAllDiseaseForRequiredPerson(Resource):
 
         return  [ [ { "name" : Disease.name } ] for Disease in _sickPerson.diseases ]
 
-# Получить список всех больных
 class GetAllPatients(Resource):
     def get(self):
-
-        _sickPerson = {}
-
-        for sickPerson in SickPerson.nodes:
-            _sickPerson = sickPerson
-        return [{"passportNumber": _sickPerson.passportNumber},
-                {"name": _sickPerson.name},
-                {"surname": _sickPerson.surname},
-                {"age": _sickPerson.age},
-                #[[{"diseases": Disease.name}] for Disease in _sickPerson.diseases],
-                # {"gender": _sickPerson.gender},
-                {"country": _sickPerson.country},
-                {"city": _sickPerson.city}
-               ]
-
+        responce = ""
+        for _sickPerson in SickPerson.nodes:
+            responce += ", { 'patientInfo' : { "
+            responce += "'passportNumber' : " + str(_sickPerson.passportNumber) + ", "
+            responce += "'name' : " + str(_sickPerson.name) + ", "
+            responce += "'surname' : " + str(_sickPerson.surname) + ", "
+            responce += "'gender' : " + str(_sickPerson.gender) + ", "
+            responce += "'age' : " + str(_sickPerson.age) + ", "
+            responce += "'birthDay' : " + str(_sickPerson.birthDay) + ", "
+            responce += "'country' : " + str(_sickPerson.country) + ", "
+            responce += "'city' : " + str(_sickPerson.city)
+            responce += " }, 'patientDiseases' : ["
+            responceSave = responce
+            for _disease in _sickPerson.diseases:
+                responce += " {"
+                responce += "'name' : " + _disease.name + ", "
+                responce += "'diseaseStart' : " + str(_sickPerson.diseases.relationship(_disease).diseaseStart) + ", "
+                responce += "'diseaseEnd' : " + str(_sickPerson.diseases.relationship(_disease).diseaseEnd) + " "
+                responce += "} , "
+            if responce != responceSave:
+                responce = responce[0:len(responce)-2]
+            responce += "] }"
+        return responce[2:]
 
 # Получить данные пациента по паспорту
 class GetPatientWithPassport(Resource):
@@ -137,7 +143,7 @@ class GetPatientWithPassport(Resource):
                 {"surname": _sickPerson.surname},
                 {"age": _sickPerson.age},
                 [[{"diseases": Disease.name}] for Disease in _sickPerson.diseases],
-                # {"gender": _sickPerson.gender},
+                {"gender": _sickPerson.gender},
                 {"country": _sickPerson.country},
                 {"city": _sickPerson.city}
                ]
@@ -159,7 +165,7 @@ class GetPatientsWithName(Resource):
                 {"surname": _sickPerson.surname},
                 {"age": _sickPerson.age},
                 [[{"diseases": Disease.name}] for Disease in _sickPerson.diseases],
-                # {"gender": _sickPerson.gender},
+                {"gender": _sickPerson.gender},
                 {"country": _sickPerson.country},
                 {"city": _sickPerson.city}
                ]
@@ -182,17 +188,34 @@ class GetPatientWithSurname(Resource):
                 {"surname": _sickPerson.surname},
                 {"age": _sickPerson.age},
                 [[{"diseases": Disease.name}] for Disease in _sickPerson.diseases],
-                # {"gender": _sickPerson.gender},
+                {"gender": _sickPerson.gender},
                 {"country": _sickPerson.country},
                 {"city": _sickPerson.city}
                 ]
 
-# Запрос для фильтрации по возрасту
-#class GetPatientWithAgeForPagePatienBase(Resource):
-
-
 # Запрос для фильтрации по выбранным болезням
-#class GetPatientWithDiseaseForPagePatienBase(Resource):
+class GetPatientWithDisease(Resource):
+    def get(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('disease', type=str)
+        args = parser.parse_args()
+
+        _sickPerson = {}
+        for sickPerson in SickPerson.nodes:
+            for Disease in sickPerson.diseases:
+                if Disease.name == args['disease']:
+                    _sickPerson = sickPerson
+
+        return [{"passportNumber": _sickPerson.passportNumber},
+                {"name": _sickPerson.name},
+                {"surname": _sickPerson.surname},
+                {"age": _sickPerson.age},
+                [[{"diseases": Disease.name}] for Disease in _sickPerson.diseases],
+                {"gender": _sickPerson.gender},
+                {"country": _sickPerson.country},
+                {"city": _sickPerson.city}
+                ]
+
 
 # Запрос для фильтрации от гендера
 #class GetPatientWithMaleForPagePatienBase(Resource):
@@ -201,4 +224,60 @@ class GetPatientWithSurname(Resource):
 #class GetPatientWithCountryForPagePatienBase(Resource):
 
 # Запрос для фильтрации по городам
-#class GetPatientWithCityForPagePatienBase(Resource):
+class GetPatientWithFilter(Resource):
+    def get(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('from_age', type=int)
+        parser.add_argument('to_age', type=int)
+        parser.add_argument('disease', type=str)
+        parser.add_argument('gender', type=str)
+        parser.add_argument('country', type=str)
+        parser.add_argument('city', type=str)
+        args = parser.parse_args()
+
+        responce = ""
+        _sickPerson = {}
+        for sickPerson in SickPerson.nodes:
+            # DISEASE
+            for Disease in sickPerson.diseases:
+                if Disease.name == args['disease']:
+                    # AGE
+                    if sickPerson.age >= args['from_age'] and sickPerson.age <= args['to_age']:
+                        # M/F
+                        if sickPerson.gender == args['gender']:
+                            # COUNTRY -> CITY
+                            if sickPerson.country == args['country'] and sickPerson.city == args['city']:
+                                _sickPerson = sickPerson
+                            # COUNTRY
+                            else:
+                                if sickPerson.country == args['country']:
+                                    _sickPerson = sickPerson
+                                # WORLD
+                                if sickPerson.country == "World":
+                                    _sickPerson = sickPerson
+                        # ALL
+                        if sickPerson.gender == "World":
+                            # COUNTRY -> CITY
+                            if sickPerson.country == args['country'] and sickPerson.city == args['city']:
+                                _sickPerson = sickPerson
+                            # COUNTRY
+                            else:
+                                if sickPerson.country == args['country']:
+                                    _sickPerson = sickPerson
+                                # WORLD
+                                if sickPerson.country == "World":
+                                    _sickPerson = sickPerson
+
+        return [{"passportNumber": _sickPerson.passportNumber},
+                            {"name": _sickPerson.name},
+                            {"surname": _sickPerson.surname},
+                            {"age": _sickPerson.age},
+                            [[{"diseases": Disease.name}] for Disease in _sickPerson.diseases],
+                            {"gender": _sickPerson.gender},
+                            {"country": _sickPerson.country},
+                            {"city": _sickPerson.city}
+                            ]
+
+
+
+
