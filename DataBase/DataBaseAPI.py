@@ -104,24 +104,6 @@ class GetAllPatients(Resource):
     def get(self):
         responce = ""
         for _sickPerson in SickPerson.nodes:
-<<<<<<< HEAD
-            responce += ", { 'patientInfo' : { "
-            responce += "'passportNumber' : " + str(_sickPerson.passportNumber) + ", "
-            responce += "'name' : " + str(_sickPerson.name) + ", "
-            responce += "'surname' : " + str(_sickPerson.surname) + ", "
-            responce += "'gender' : " + str(_sickPerson.gender) + ", "
-            responce += "'age' : " + str(_sickPerson.age) + ", "
-            responce += "'birthDay' : " + str(_sickPerson.birthDay) + ", "
-            responce += "'country' : " + str(_sickPerson.country) + ", "
-            responce += "'city' : " + str(_sickPerson.city)
-            responce += " }, 'patientDiseases' : ["
-            responceSave = responce
-            for _disease in _sickPerson.diseases:
-                responce += " {"
-                responce += "'name' : " + _disease.name + ", "
-                responce += "'diseaseStart' : " + str(_sickPerson.diseases.relationship(_disease).diseaseStart) + ", "
-                responce += "'diseaseEnd' : " + str(_sickPerson.diseases.relationship(_disease).diseaseEnd) + " "
-=======
             responce += ', { "patientInfo" : { '
             responce += '"passportNumber" : "' + str(_sickPerson.passportNumber) + '", '
             responce += '"name" : "' + str(_sickPerson.name) + '", '
@@ -138,16 +120,12 @@ class GetAllPatients(Resource):
                 responce += '"name" : "' + _disease.name + '", '
                 responce += '"diseaseStart" : "' + str(_sickPerson.diseases.relationship(_disease).diseaseStart) + '", '
                 responce += '"diseaseEnd" : "' + str(_sickPerson.diseases.relationship(_disease).diseaseEnd) + '" '
->>>>>>> 311e2f6f6f5091c87253ea9b7c759eca5e56d222
+
                 responce += "} , "
             if responce != responceSave:
                 responce = responce[0:len(responce)-2]
             responce += "] }"
-<<<<<<< HEAD
-        return responce[2:]
-=======
         return "[ " + responce[2:] + " ]"
->>>>>>> 311e2f6f6f5091c87253ea9b7c759eca5e56d222
 
 # Получить данные пациента по паспорту
 class GetPatientWithPassport(Resource):
@@ -240,13 +218,7 @@ class GetPatientWithDisease(Resource):
                 ]
 
 
-# Запрос для фильтрации от гендера
-#class GetPatientWithMaleForPagePatienBase(Resource):
-
-# Запрос для фильтрации по странам
-#class GetPatientWithCountryForPagePatienBase(Resource):
-
-# Запрос для фильтрации по городам
+# Запрос для фильтра
 class GetPatientWithFilter(Resource):
     def get(self):
         parser = reqparse.RequestParser()
