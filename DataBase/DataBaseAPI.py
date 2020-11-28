@@ -227,8 +227,9 @@ class GetPatientWithFilter(Resource):
             responce += '"age" : "' + str(_sickPerson.age) + '", '
             responce += '"country" : "' + str(_sickPerson.country) + '", '
             responce += '"city" : "' + str(_sickPerson.city)
-            responce += '" }, "patientDiseases" : ['
-            responce += '}"'
+            for Disease in _sickPerson.diseases:
+                responce += '" }, "patientDiseases" : [ ' + Disease.name + ','
+            responce += '] }"'
             return responce
 
         parser = reqparse.RequestParser()
