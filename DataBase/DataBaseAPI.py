@@ -284,9 +284,8 @@ class GetPatientWithFilter(Resource):
             responce += '" }, "patientDiseases" : ['
             responceSave = responce
             for Disease in _sickPerson.diseases:
-                responce += " {"
                 responce += '"name" : "' + Disease.name + '" '
-                responce += "} , "
+                responce += ", "
             if responce != responceSave:
                 responce = responce[0:len(responce)-2]
             responce += "] }"
