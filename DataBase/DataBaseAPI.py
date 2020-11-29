@@ -2,6 +2,7 @@ from flask_restful import Resource, reqparse
 from DataBase.DiseaseModel import Contact, SickPerson, Disease
 import datetime, json
 
+#ADD
 class PostContact(Resource):
     def post(self):
         parser = reqparse.RequestParser()
@@ -32,6 +33,9 @@ class PostSickPerson(Resource):
         parser.add_argument('country', type=str)
         parser.add_argument('city', type=str)
         args = parser.parse_args()
+        for sickPerson in SickPerson.nodes:
+            if sickPerson.passportNumber == args['passportNumber']:
+                return "Passport number used"
         SickPerson( name=args['name'], surname=args['surname'], age=args['age'],
                     birthDay=datetime.datetime.strptime(args['birthDay'],'%Y-%m-%d').date(),
                     country=args['country'], city=args['city'], gender=args['gender'],
@@ -87,6 +91,7 @@ class AddDiseaseToPerson(Resource):
                   'diseaseEnd' : datetime.datetime.strptime(args['diseaseEnd'],'%Y-%m-%d').date() } )
         return "sickPerson was taken new disease"
 
+#GET
 class GetAllDiseaseForRequiredPerson(Resource):
     def get(self):
         parser = reqparse.RequestParser()
@@ -347,7 +352,5 @@ class GetPatientWithFilter(Resource):
                                     _sickPerson = sickPerson
                                     responce = printOut(responce, _sickPerson)
         if responce == nullResponce:
-            return "Patients not found"
-        return "[ " + responce + " ]" 
-        
+            return "Patients not found"       
         '''
