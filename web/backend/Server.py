@@ -6,7 +6,7 @@ from DataBase.DataBaseAPI import PostContact, PostSickPerson, \
                                  GetAllDiseaseForRequiredPerson, GetPatientWithPassport, \
                                  GetPatientWithNameAndSurname, GetAllPatients, GetPatientNSbyPassport,\
                                  GetPatientWithFilter, GetPatientWithDisease, GetAllCountries, \
-                                 GetAllDisease, GetAllCities
+                                 GetAllDisease, GetAllCities, ExportBase
 from web.backend.Auth import AdminLogin, TokenRefresh, CheckIfTokenExpire
 
 
@@ -21,6 +21,11 @@ class Server:
     def __init__(self, hostVal, portVal):
         self.host = hostVal
         self.port = portVal
+
+        self.api.add_resource(AdminLogin, '/api/login')
+        self.api.add_resource(TokenRefresh, '/api/refreshtoken')
+        self.api.add_resource(CheckIfTokenExpire, '/api/checkiftokenexpire')
+
         self.api.add_resource(PostContact, '/postContact')
         self.api.add_resource(PostSickPerson, '/postSickPerson')
         self.api.add_resource(PostDisease, '/postDisease')
@@ -39,9 +44,8 @@ class Server:
         self.api.add_resource(GetPatientWithDisease, '/getPatientWithDisease')
         self.api.add_resource(GetPatientWithFilter, '/getPatientWithFilter')
 
-        self.api.add_resource(AdminLogin, '/api/login')
-        self.api.add_resource(TokenRefresh, '/api/refreshtoken')
-        self.api.add_resource(CheckIfTokenExpire, '/api/checkiftokenexpire')
+        self.api.add_resource(ExportBase, '/exportBase')
+
 
     def run(self):
         self.app.run(self.host, self.port)

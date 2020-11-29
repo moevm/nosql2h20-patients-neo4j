@@ -2,7 +2,8 @@ from flask_restful import Resource, reqparse
 from DataBase.DiseaseModel import Contact, SickPerson, Disease
 import datetime, json
 
-#ADD
+
+# POST request
 class PostContact(Resource):
     def post(self):
         parser = reqparse.RequestParser()
@@ -20,6 +21,7 @@ class PostContact(Resource):
                 country=args['country'], city=args['city'], gender=args['gender'],
                 passportNumber=args['passportNumber']).save()
         return "New contact is added"
+
 
 class PostSickPerson(Resource):
     def post(self):
@@ -42,6 +44,7 @@ class PostSickPerson(Resource):
                     passportNumber=args['passportNumber']).save()
         return "New sickPerson is added"
 
+
 class PostDisease(Resource):
     def post(self):
         parser = reqparse.RequestParser()
@@ -49,6 +52,7 @@ class PostDisease(Resource):
         args = parser.parse_args()
         Disease(name=args['name']).save()
         return "New disease is added"
+
 
 class PostContactToPerson(Resource):
     def post(self):
@@ -67,6 +71,7 @@ class PostContactToPerson(Resource):
                 _contact = contact
         _sickPerson.contacts.connect( _contact )
         return "sickPerson was taken new contact"
+
 
 class AddDiseaseToPerson(Resource):
     def post(self):
@@ -91,8 +96,8 @@ class AddDiseaseToPerson(Resource):
                   'diseaseEnd' : datetime.datetime.strptime(args['diseaseEnd'],'%Y-%m-%d').date() } )
         return "sickPerson was taken new disease"
 
-#GET
-#все болезни
+
+# GET request
 class GetAllDisease(Resource):
     def get(self):
         diseases = ""
@@ -102,7 +107,7 @@ class GetAllDisease(Resource):
             diseases += "} , "
         return "[ " + diseases + " ]"
 
-#все страны
+
 class GetAllCountries(Resource):
     def get(self):
         countries = ""
@@ -118,7 +123,7 @@ class GetAllCountries(Resource):
                 countries += "} , "
         return "[ " + countries + " ]"
 
-#все города опред страны
+
 class GetAllCities(Resource):
     def get(self):
         parser = reqparse.RequestParser()
@@ -139,6 +144,7 @@ class GetAllCities(Resource):
                 cities += "} , "
         return "[ " + cities + " ]"
 
+
 class GetAllDiseaseForRequiredPerson(Resource):
     def get(self):
         parser = reqparse.RequestParser()
@@ -151,6 +157,7 @@ class GetAllDiseaseForRequiredPerson(Resource):
                 _sickPerson = sickPerson
 
         return  [ [ { "name" : Disease.name } ] for Disease in _sickPerson.diseases ]
+
 
 class GetPatientNSbyPassport(Resource):
     def get(self):
@@ -165,6 +172,7 @@ class GetPatientNSbyPassport(Resource):
 
         return [{"name": _sickPerson.name},
                 {"surname": _sickPerson.surname}]
+
 
 class GetAllPatients(Resource):
     def get(self):
@@ -193,7 +201,7 @@ class GetAllPatients(Resource):
             responce += "] }"
         return "[ " + responce[2:] + " ]"
 
-# Фильтр по паспорту
+
 class GetPatientWithPassport(Resource):
     def get(self):
         parser = reqparse.RequestParser()
@@ -215,7 +223,7 @@ class GetPatientWithPassport(Resource):
                 {"city": _sickPerson.city}
                ]
 
-# Фильтр по имени и фамилии
+
 class GetPatientWithNameAndSurname(Resource):
     def get(self):
         parser = reqparse.RequestParser()
@@ -238,7 +246,7 @@ class GetPatientWithNameAndSurname(Resource):
                 {"city": _sickPerson.city}
                ]
 
-# Запрос для фильтрации по выбранным болезням
+
 class GetPatientWithDisease(Resource):
     def get(self):
         parser = reqparse.RequestParser()
@@ -261,7 +269,7 @@ class GetPatientWithDisease(Resource):
                 {"city": _sickPerson.city}
                 ]
 
-# Запрос для фильтра Patient base
+
 class GetPatientWithFilter(Resource):
     def get(self):
         def printOut(responce, _sickPerson):
@@ -329,6 +337,39 @@ class GetPatientWithFilter(Resource):
         if responce == nullResponce:
             return "Patients not found"
         return "[ " + responce + " ]"
+
+
+class ExportBase(Resource):
+    def get(self):
+        responce = ""
+        for _sickPerson in SickPerson.nodes:
+            responce += ', { "patientInfo" : { '
+            responce += '"passportNumber" : "' + str(_sickPerson.passportNumber) + '", '
+            responce += '"name" : "' + str(_sickPerson.name) + '", '
+            responce += '"surname" : "' + str(_sickPerson.surname) + '", '
+            responce += '"gender" : "' + str(_sickPerson.gender) + '", '
+            responce += '"age" : "' + str(_sickPerson.age) + '", '
+            responce += '"birthDay" : "' + str(_sickPerson.birthDay) + '", '
+            responce += '"country" : "' + str(_sickPerson.country) + '", '
+            responce += '"city" : "' + str(_sickPerson.city)
+            responce += '" }, "patientDiseases" : ['
+            responceSave = responce
+            for _disease in _sickPerson.diseases:
+                responce += " {"
+                responce += '"name" : "' + _disease.name + '", '
+                responce += '"diseaseStart" : "' + str(_sickPerson.diseases.relationship(_disease).diseaseStart) + '", '
+                responce += '"diseaseEnd" : "' + str(_sickPerson.diseases.relationship(_disease).diseaseEnd) + '" '
+                responce += "} , "
+            if responce != responceSave:
+                responce = responce[0:len(responce)-2]
+            responce += "] }"
+
+        jsonData = json.dumps(responce)
+        with open("data.json", "w") as file:
+            file.write(jsonData)
+
+        return "Database export was a success"
+
 
 '''
 # Запрос для фильтра Patient base
