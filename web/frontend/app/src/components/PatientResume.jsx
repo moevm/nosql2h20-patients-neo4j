@@ -16,6 +16,7 @@ class PatientResume extends Component {
             passportNumber: "",
             name: "",
             surname: "",
+            gender: "Male",
             age: "",
             birthDay: "",
             country: "",
@@ -52,7 +53,7 @@ class PatientResume extends Component {
         const diseaseData = new FormData();
         const patientData = new FormData();
 
-        let numberInputPatientData = 7;
+        let numberInputPatientData = 8;
         let i = 0;
         for (let [name, value] of data) {
             if(i < numberInputPatientData) {
@@ -70,6 +71,7 @@ class PatientResume extends Component {
             passportNumber: "",
             name: "",
             surname: "",
+            gender: "Male",
             age: "",
             birthDay: "",
             country: "",
@@ -81,8 +83,8 @@ class PatientResume extends Component {
             displayErrors: false,
         });
         
-        Axios.post("/postSickPerson", patientData);
-        Axios.post("/addDiseaseToPerson", diseaseData);
+        // Axios.post("/postSickPerson", patientData);
+        // Axios.post("/addDiseaseToPerson", diseaseData);
     }
 
       render() {
@@ -127,6 +129,16 @@ class PatientResume extends Component {
                                     className="w3-half"
                                     required
                                 />
+                            </div>
+                            <div className="w3-container" style={input}>
+                                <label htmlFor="gender" className="w3-quarter">Gender:</label>
+                                <select value={this.state.value} 
+                                        onChange={this.handleChange}
+                                        className="w3-half"
+                                        required>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                </select>
                             </div>
                             <div className="w3-container" style={input}>
                                 <label htmlFor="age" className="w3-quarter">Age:</label>
