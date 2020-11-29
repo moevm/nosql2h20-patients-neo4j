@@ -92,6 +92,32 @@ class AddDiseaseToPerson(Resource):
         return "sickPerson was taken new disease"
 
 #GET
+#все болезни
+class GetAllDisease(Resource):
+    def get(self):
+        diseases = ""
+        for disease in Disease.nodes:
+            diseases += " {"
+            diseases += '"name" : "' + str(disease.name) + '",'
+            diseases += "} , "
+        return "[ " + diseases + " ]"
+
+#все страны
+class GetAllCountries(Resource):
+    def get(self):
+        countries = ""
+        c = []
+        c_new = []
+        for sickPerson in SickPerson.nodes:
+            c.append(sickPerson.country)
+        for item in c:
+            if item not in c_new:
+                c_new.append(item)
+                countries += " {"
+                countries += '"name" : "' + str(item) + '"'
+                countries += "} , "
+        return "[ " + countries + " ]"
+
 class GetAllDiseaseForRequiredPerson(Resource):
     def get(self):
         parser = reqparse.RequestParser()
