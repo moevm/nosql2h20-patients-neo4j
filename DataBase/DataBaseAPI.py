@@ -100,6 +100,20 @@ class GetAllDiseaseForRequiredPerson(Resource):
 
         return  [ [ { "name" : Disease.name } ] for Disease in _sickPerson.diseases ]
 
+class GetPatientNSbyPassport(Resource):
+    def get(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('passportNumber', type=int)
+        args = parser.parse_args()
+
+        _sickPerson = {}
+        for sickPerson in SickPerson.nodes:
+            if sickPerson.passportNumber == args['passportNumber']:
+                _sickPerson = sickPerson
+
+        return [{"name": _sickPerson.name},
+                {"surname": _sickPerson.surname}]
+
 class GetAllPatients(Resource):
     def get(self):
         responce = ""
@@ -127,7 +141,7 @@ class GetAllPatients(Resource):
             responce += "] }"
         return "[ " + responce[2:] + " ]"
 
-# Получить данные пациента по паспорту
+# Фильтр по паспорту
 class GetPatientWithPassport(Resource):
     def get(self):
         parser = reqparse.RequestParser()
@@ -149,7 +163,7 @@ class GetPatientWithPassport(Resource):
                 {"city": _sickPerson.city}
                ]
 
-# Получить данные пациента по имени
+# Фильтр по имени и фамилии
 class GetPatientWithNameAndSurname(Resource):
     def get(self):
         parser = reqparse.RequestParser()
@@ -171,7 +185,6 @@ class GetPatientWithNameAndSurname(Resource):
                 {"country": _sickPerson.country},
                 {"city": _sickPerson.city}
                ]
-
 
 # Запрос для фильтрации по выбранным болезням
 class GetPatientWithDisease(Resource):
@@ -196,7 +209,7 @@ class GetPatientWithDisease(Resource):
                 {"city": _sickPerson.city}
                 ]
 
-# Запрос для фильтра
+# Запрос для фильтра Patient base
 class GetPatientWithFilter(Resource):
     def get(self):
         def printOut(responce, _sickPerson):
@@ -223,6 +236,7 @@ class GetPatientWithFilter(Resource):
 
         _sickPerson = {}
         responce = ""
+        nullResponce = ""
         for sickPerson in SickPerson.nodes:
             # DISEASE
             for Disease in sickPerson.diseases:
@@ -260,4 +274,80 @@ class GetPatientWithFilter(Resource):
                                 if args['country'] == 'World':
                                     _sickPerson = sickPerson
                                     responce = printOut(responce, _sickPerson)
+        if responce == nullResponce:
+            return "Patients not found"
         return "[ " + responce + " ]"
+
+'''
+# Запрос для фильтра Patient base
+class GetPatientWithFilter(Resource):
+    def get(self):
+        def printOut(responce, _sickPerson):
+            responce += '{"passportNumber" : "' + str(_sickPerson.passportNumber) + '", '
+            responce += '"name" : "' + str(_sickPerson.name) + '", '
+            responce += '"surname" : "' + str(_sickPerson.surname) + '", '
+            responce += '"gender" : "' + str(_sickPerson.gender) + '", '
+            responce += '"age" : "' + str(_sickPerson.age) + '", '
+            responce += '"country" : "' + str(_sickPerson.country) + '", '
+            responce += '"city" : "' + str(_sickPerson.city)
+            for Disease in _sickPerson.diseases:
+                responce += '" }, "patientDiseases" : [ ' + Disease.name + ','
+            responce += '] }"'
+            return responce
+
+        parser = reqparse.RequestParser()
+        parser.add_argument('disease', type=str)
+        parser.add_argument('country', type=str)
+        parser.add_argument('city', type=str)
+        parser.add_argument('gender', type=str)
+        parser.add_argument('from_age', type=int)
+        parser.add_argument('to_age', type=int)
+        parser.add_argument('time', type=int)
+        parser.add_argument('scale', type=int)
+        args = parser.parse_args()
+
+        _sickPerson = {}
+        responce = ""
+        nullResponce = ""
+        for sickPerson in SickPerson.nodes:
+            # DISEASE
+            for Disease in sickPerson.diseases:
+                if Disease.name == args['disease']:
+                    # AGE
+                    if sickPerson.age >= args['from_age'] and sickPerson.age <= args['to_age']:
+                        # M/F
+                        if sickPerson.gender == args['gender']:
+                            # COUNTRY -> CITY
+                            if sickPerson.country == args['country'] and sickPerson.city == args['city']:
+                                _sickPerson = sickPerson
+                                responce = printOut(responce, _sickPerson)
+                            # COUNTRY
+                            else:
+                                if sickPerson.country == args['country']:
+                                    _sickPerson = sickPerson
+                                    responce = printOut(responce, _sickPerson)
+                            # WORLD
+                                if args['country'] == 'World':
+                                    _sickPerson = sickPerson
+                                    responce = printOut(responce, _sickPerson)
+                        # ALL
+                        else:
+                            if args['gender'] == 'All':
+                                # COUNTRY -> CITY
+                                if sickPerson.country == args['country'] and sickPerson.city == args['city']:
+                                    _sickPerson = sickPerson
+                                    responce = printOut(responce, _sickPerson)
+                                # COUNTRY
+                                else:
+                                    if sickPerson.country == args['country']:
+                                        _sickPerson = sickPerson
+                                        responce = printOut(responce, _sickPerson)
+                                # WORLD
+                                if args['country'] == 'World':
+                                    _sickPerson = sickPerson
+                                    responce = printOut(responce, _sickPerson)
+        if responce == nullResponce:
+            return "Patients not found"
+        return "[ " + responce + " ]" 
+        
+        '''

@@ -4,7 +4,7 @@ from flask_jwt_extended import JWTManager
 from DataBase.DataBaseAPI import PostContact, PostSickPerson, \
                                  PostContactToPerson, PostDisease, AddDiseaseToPerson, \
                                  GetAllDiseaseForRequiredPerson, GetPatientWithPassport, \
-                                 GetPatientWithNameAndSurname, GetAllPatients, \
+                                 GetPatientWithNameAndSurname, GetAllPatients, GetPatientNSbyPassport,\
                                  GetPatientWithFilter, GetPatientWithDisease
 from web.backend.Auth import AdminLogin, TokenRefresh, CheckIfTokenExpire
 
@@ -16,7 +16,6 @@ class Server:
     api = Api(app)
     app.config['JWT_SECRET_KEY'] = 'jwt-secret-string'
     jwt = JWTManager(app)
-    
 
     def __init__(self, hostVal, portVal):
         self.host = hostVal
@@ -27,14 +26,13 @@ class Server:
         self.api.add_resource(AddDiseaseToPerson, '/addDiseaseToPerson')
         self.api.add_resource(PostContactToPerson, '/addContactToPerson')
 
-
+        self.api.add_resource(GetPatientNSbyPassport, '/getPatientNSbyPassport')
         self.api.add_resource(GetAllDiseaseForRequiredPerson, '/getPersonDiseases')
         self.api.add_resource(GetPatientWithPassport, '/getPatientWithPassport')
         self.api.add_resource(GetPatientWithNameAndSurname, '/getPatientWithNameAndSurname')
         self.api.add_resource(GetAllPatients, '/getAllPatients')
         self.api.add_resource(GetPatientWithDisease, '/getPatientWithDisease')
         self.api.add_resource(GetPatientWithFilter, '/getPatientWithFilter')
-
 
         self.api.add_resource(AdminLogin, '/api/login')
         self.api.add_resource(TokenRefresh, '/api/refreshtoken')
