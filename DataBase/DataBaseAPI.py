@@ -273,16 +273,23 @@ class GetPatientWithDisease(Resource):
 class GetPatientWithFilter(Resource):
     def get(self):
         def printOut(responce, _sickPerson):
-            responce += '{"passportNumber" : "' + str(_sickPerson.passportNumber) + '", '
+            responce += ', { "patientInfo" : { '
+            responce += '"passportNumber" : "' + str(_sickPerson.passportNumber) + '", '
             responce += '"name" : "' + str(_sickPerson.name) + '", '
             responce += '"surname" : "' + str(_sickPerson.surname) + '", '
             responce += '"gender" : "' + str(_sickPerson.gender) + '", '
             responce += '"age" : "' + str(_sickPerson.age) + '", '
             responce += '"country" : "' + str(_sickPerson.country) + '", '
             responce += '"city" : "' + str(_sickPerson.city)
+            responce += '" }, "patientDiseases" : ['
+            responceSave = responce
             for Disease in _sickPerson.diseases:
-                responce += '" }, "patientDiseases" : [ ' + Disease.name + ','
-            responce += '] }"'
+                responce += " {"
+                responce += '"name" : "' + Disease.name + '" '
+                responce += "} , "
+            if responce != responceSave:
+                responce = responce[0:len(responce)-2]
+            responce += "] }"
             return responce
 
         parser = reqparse.RequestParser()
@@ -336,7 +343,7 @@ class GetPatientWithFilter(Resource):
                                     responce = printOut(responce, _sickPerson)
         if responce == nullResponce:
             return "Patients not found"
-        return "[ " + responce + " ]"
+        return "[ " + responce[2:] + " ]"
 
 
 class ExportBase(Resource):
