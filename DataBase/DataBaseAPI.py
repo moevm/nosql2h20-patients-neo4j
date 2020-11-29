@@ -194,8 +194,8 @@ class GetAllPatients(Resource):
                 responce += '"name" : "' + _disease.name + '", '
                 responce += '"diseaseStart" : "' + str(_sickPerson.diseases.relationship(_disease).diseaseStart) + '", '
                 responce += '"diseaseEnd" : "' + str(_sickPerson.diseases.relationship(_disease).diseaseEnd) + '" '
-
                 responce += "} , "
+
             if responce != responceSave:
                 responce = responce[0:len(responce)-2]
             responce += "] }"
@@ -363,9 +363,10 @@ class ExportBase(Resource):
                 responce += "} , "
             if responce != responceSave:
                 responce = responce[0:len(responce)-2]
-            responce += "] }"
+            responce += "]"
 
-            responce += '" }, "patientsContacts" : ['
+            responce += '", "patientsContacts" : ['
+            responceSave1 = responce
             for contact in _sickPerson.contacts:
                 responce += " {"
                 responce += '"passportNumber" : "' + str(contact.passportNumber) + '", '
@@ -374,15 +375,18 @@ class ExportBase(Resource):
                 responce += '"gender" : "' + str(contact.gender) + '", '
                 responce += '"age" : "' + str(contact.age) + '", '
                 responce += '"birthDay" : "' + str(contact.birthDay) + '", '
-                responce += '"country" : "' + contact.country + '", '
-                responce += '"city" : "' + contact.city + '", '
+                responce += '"country" : "' + str(contact.country) + '", '
+                responce += '"city" : "' + str(contact.city)
                 responce += "} , "
+            if responce != responceSave1:
+                responce = responce[0:len(responce) - 2]
             responce += "] }"
+
+        responce = "[ " + responce[2:] + " ]"
 
         jsonData = json.dumps(responce)
         with open("data.json", "w") as file:
             file.write(jsonData)
-
         return "Database export was a success"
 
 
