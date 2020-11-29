@@ -2,7 +2,6 @@ from flask_restful import Resource, reqparse
 from DataBase.DiseaseModel import Contact, SickPerson, Disease
 import datetime, json
 
-
 # POST request
 class PostContact(Resource):
     def post(self):
@@ -190,11 +189,7 @@ class GetAllPatients(Resource):
             responce += '" }, "patientDiseases" : ['
             responceSave = responce
             for _disease in _sickPerson.diseases:
-                responce += " {"
                 responce += '"name" : "' + _disease.name + '", '
-                responce += '"diseaseStart" : "' + str(_sickPerson.diseases.relationship(_disease).diseaseStart) + '", '
-                responce += '"diseaseEnd" : "' + str(_sickPerson.diseases.relationship(_disease).diseaseEnd) + '" '
-                responce += "} , "
 
             if responce != responceSave:
                 responce = responce[0:len(responce)-2]
