@@ -118,6 +118,27 @@ class GetAllCountries(Resource):
                 countries += "} , "
         return "[ " + countries + " ]"
 
+#все города опред страны
+class GetAllCities(Resource):
+    def get(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('country', type=str)
+        args = parser.parse_args()
+
+        cities = ""
+        c = []
+        c_new = []
+        for sickPerson in SickPerson.nodes:
+            if sickPerson.country == args['country']:
+                c.append(sickPerson.city)
+        for item in c:
+            if item not in c_new:
+                c_new.append(item)
+                cities += " {"
+                cities += '"name" : "' + str(item) + '"'
+                cities += "} , "
+        return "[ " + cities + " ]"
+
 class GetAllDiseaseForRequiredPerson(Resource):
     def get(self):
         parser = reqparse.RequestParser()

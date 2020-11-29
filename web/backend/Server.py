@@ -6,7 +6,7 @@ from DataBase.DataBaseAPI import PostContact, PostSickPerson, \
                                  GetAllDiseaseForRequiredPerson, GetPatientWithPassport, \
                                  GetPatientWithNameAndSurname, GetAllPatients, GetPatientNSbyPassport,\
                                  GetPatientWithFilter, GetPatientWithDisease, GetAllCountries, \
-                                 GetAllDisease
+                                 GetAllDisease, GetAllCities
 from web.backend.Auth import AdminLogin, TokenRefresh, CheckIfTokenExpire
 
 
@@ -29,6 +29,8 @@ class Server:
 
         self.api.add_resource(GetAllDisease, '/getAllDisease')
         self.api.add_resource(GetAllCountries, '/getAllCountries')
+        self.api.add_resource(GetAllCities, '/getAllCities')
+
         self.api.add_resource(GetPatientNSbyPassport, '/getPatientNSbyPassport')
         self.api.add_resource(GetAllDiseaseForRequiredPerson, '/getPersonDiseases')
         self.api.add_resource(GetPatientWithPassport, '/getPatientWithPassport')
