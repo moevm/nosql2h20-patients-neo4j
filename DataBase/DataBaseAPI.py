@@ -150,15 +150,16 @@ class GetPatientWithPassport(Resource):
                ]
 
 # Получить данные пациента по имени
-class GetPatientsWithName(Resource):
+class GetPatientWithNameAndSurname(Resource):
     def get(self):
         parser = reqparse.RequestParser()
         parser.add_argument('name', type=str)
+        parser.add_argument('surname', type=str)
         args = parser.parse_args()
 
         _sickPerson = {}
         for sickPerson in SickPerson.nodes:
-            if sickPerson.name == args['name']:
+            if sickPerson.name == args['name'] and sickPerson.surname == args['surname']:
                 _sickPerson = sickPerson
 
         return [{"passportNumber": _sickPerson.passportNumber},
@@ -171,27 +172,6 @@ class GetPatientsWithName(Resource):
                 {"city": _sickPerson.city}
                ]
 
-# Получить данные пациента по фамилии
-class GetPatientWithSurname(Resource):
-    def get(self):
-        parser = reqparse.RequestParser()
-        parser.add_argument('surname', type=str)
-        args = parser.parse_args()
-
-        _sickPerson = {}
-        for sickPerson in SickPerson.nodes:
-            if sickPerson.surname == args['surname']:
-                _sickPerson = sickPerson
-
-        return [{"passportNumber": _sickPerson.passportNumber},
-                {"name": _sickPerson.name},
-                {"surname": _sickPerson.surname},
-                {"age": _sickPerson.age},
-                [[{"diseases": Disease.name}] for Disease in _sickPerson.diseases],
-                {"gender": _sickPerson.gender},
-                {"country": _sickPerson.country},
-                {"city": _sickPerson.city}
-                ]
 
 # Запрос для фильтрации по выбранным болезням
 class GetPatientWithDisease(Resource):
