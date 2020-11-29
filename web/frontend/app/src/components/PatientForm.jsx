@@ -1,50 +1,37 @@
-import React, {Component} from 'react';
+import React from 'react';
 
-class PatientForm extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            data: "fromPatientForm",
-            dataTable: [
-                {
-                  col1: 'Hello',
-                  col2: 'World',
-                },
-                {
-                  col1: 'react-table',
-                  col2: 'rocks',
-                },
-                {
-                  col1: 'whatever',
-                  col2: 'you want',
-                },
-              ]
-        }
-        this.handleSubmit = this.handleSubmit.bind(this);
-    }
-    handleSubmit(event) {
-        event.preventDefault();
-        console.log("button");
+const kek = [
+  {
+      "patientInfo":{
+      "passportNumber":"134343",
+      "name":"Gleb",
+      "surname":"Novikov",
+      "gender":"Male",
+      "age":"21",
+      "birthDay":"1999-03-18",
+      "country":"Russia",
+      "city":"спб"
+      },
+      "patientDiseases":[
+          "Vetryanka",
+          "Speed",
+          "Vich"
+      ]
+  }
+]
 
-        // this.props.updateData(this.state.data)
-        this.props.updateData(this.state.dataTable)
+function PatientForm({updateData}) {
 
-    }
-    
-    render() {
-        return (
-            // <form onSubmit={this.handleSubmit}>
-            //     <h2 className="w3-center">Filters</h2>
-            //     <button onClick={(event) => this.props.updateData(this.state.dataTable)}></button>
-            //     <div className="w3-center" style={{padding: "1rem"}}>
-            //         <button className="w3-button w3-blue">
-            //             Show
-            //         </button>
-            //     </div>
-            // </form>
-            <button onClick={(event) => this.props.updateData(this.state.dataTable)}></button>
-        );
-    }
+  function submitHandeler(event) {
+    event.preventDefault();
+    updateData(kek);
+  }
+
+  return (
+    <form onSubmit={submitHandeler}> 
+      <button type="submit">Show</button>
+    </form>
+  )
 }
 
 export default PatientForm;
