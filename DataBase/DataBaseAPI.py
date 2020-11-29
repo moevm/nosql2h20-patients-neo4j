@@ -50,7 +50,7 @@ class PostDisease(Resource):
         Disease(name=args['name']).save()
         return "New disease is added"
 
-class PostContactToPerson(Resource):
+class AddContactToPerson(Resource):
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument('sickPassportNumber', type=int)
@@ -91,7 +91,93 @@ class AddDiseaseToPerson(Resource):
                   'diseaseEnd' : datetime.datetime.strptime(args['diseaseEnd'],'%Y-%m-%d').date() } )
         return "sickPerson was taken new disease"
 
-#GET
+class GetStatistic(Resource):
+    def get(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('diseaseName', type=str)
+        parser.add_argument('scale', type=str)
+        parser.add_argument('periodBegin', type=str)
+        parser.add_argument('periodEnd', type=str)
+        parser.add_argument('country', type=str)
+        parser.add_argument('city', type=str)
+        parser.add_argument('gender', type=str)
+        parser.add_argument('ageBegin', type=int)
+        parser.add_argument('ageEnd', type=int)
+        args = parser.parse_args()
+
+        periodBegin = datetime.datetime.strptime(args['periodBegin'],'%Y-%m-%d').date()
+        periodEnd = datetime.datetime.strptime(args['periodEnd'], '%Y-%m-%d').date()
+        scalePeriodMap = {}
+
+        if( args['scale'] == "year" ):
+            for year in range( periodBegin.year, periodEnd.year + 1):
+                scalePeriodMap[year] = 0
+
+        if (args['scale'] == "month"):
+            for year in range(periodBegin.year, periodEnd.year + 1):
+                if (periodBegin.year == periodEnd.year):
+                    for month in range(periodBegin.month, periodEnd.month + 1):
+                        scalePeriodMap[ str(year) + "-" + str(month) ] = 0
+                    continue
+
+                if (year == periodBegin.year):
+                    for month in range(periodBegin.month, 13):
+                        scalePeriodMap[ str(year) + "-" + str(month) ] = 0
+                    continue
+
+                if( year == periodEnd.year ):
+                    for month in range(1, periodEnd.month + 1):
+                        scalePeriodMap[ str(year) + "-" + str(month) ] = 0
+                    continue
+
+                for month in range(1, 13):
+                    scalePeriodMap[str(year) + "-" + str(month)] = 0
+
+        if (args['scale'] == "day"):
+            for year in range(periodBegin.year, periodEnd.year + 1):
+                for month in range(periodBegin.month, periodEnd.month + 1):
+                    if( periodBegin.year == periodEnd.year and periodBegin.month == periodEnd.month ):
+                        for day in range(periodBegin.day, periodEnd.day + 1):
+                            scalePeriodMap[ str(year) + "-" + str(month) + "-" + str(day) ] = 0
+                        continue
+
+                    if (year == periodEnd.year and month == periodEnd.month):
+                        for day in range(1, periodEnd.day + 1):
+                            scalePeriodMap[str(year) + "-" + str(month) + "-" + str(day)] = 0
+                        continue
+
+                    if (year == periodBegin.year and month == periodBegin.month):
+                        for day in range(periodBegin.day, 31):
+                            scalePeriodMap[str(year) + "-" + str(month) + "-" + str(day)] = 0
+                        continue
+
+                    for day in range(1, 31):
+                        scalePeriodMap[str(year) + "-" + str(month) + "-" + str(day)] = 0
+
+        suitablePatients = []
+        for patient in SickPerson.nodes:
+            for disease in patient.diseases:
+                patientDS = patient.diseases.relationship(disease).diseaseStart
+                if disease.name == args['diseaseName'] \
+                    and patient.gender == args['gender'] \
+                    and patient.city == args['city'] \
+                    and patient.age >= args['ageBegin'] \
+                    and patient.age <= args['ageEnd'] \
+                    and periodBegin <= patientDS <= periodEnd:
+
+                    if (args['scale'] == "year"):
+                        scalePeriodMap[ patientDS.year ] += 1
+                    if (args['scale'] == "month"):
+                        scalePeriodMap[ str(patientDS.year) + "-" + str(patientDS.month) ] += 1
+                    if (args['scale'] == "day"):
+                        scalePeriodMap[ str(patientDS.year) + "-" + str(patientDS.month) + "-" + str(patientDS.day)] += 1
+                    suitablePatients.append( patient )
+
+        response = []
+        for value in scalePeriodMap.keys():
+            response.append( { "xVal" : value, "yVal" : scalePeriodMap[value] } )
+        return response
+
 class GetAllDiseaseForRequiredPerson(Resource):
     def get(self):
         parser = reqparse.RequestParser()

@@ -9,6 +9,7 @@ import Logout from "./Logout";
 import Menu from "./Menu";
 import PatientBase from "./PatientBase";
 import PatientResume from "./PatientResume";
+import Statistic from "./Statistic"
 
 function App() {
     let [login, setLogin] = React.useState(false);
@@ -28,6 +29,7 @@ function App() {
                     <Route path="/menu" exact component={Menu}/>
                     <Route path="/patientbase" exact component={PatientBase}/>
                     <Route path="/patientresume" exact component={PatientResume}/>
+                    <Route path="/statistic" exact component={Statistic}/>
                 </Switch>
             </Router>
         </React.Fragment>

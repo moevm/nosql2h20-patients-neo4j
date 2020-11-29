@@ -2,10 +2,10 @@ from flask import Flask
 from flask_restful import Api
 from flask_jwt_extended import JWTManager
 from DataBase.DataBaseAPI import PostContact, PostSickPerson, \
-                                 PostContactToPerson, PostDisease, AddDiseaseToPerson, \
+                                 AddContactToPerson, PostDisease, AddDiseaseToPerson, \
                                  GetAllDiseaseForRequiredPerson, GetPatientWithPassport, \
                                  GetPatientWithNameAndSurname, GetAllPatients, GetPatientNSbyPassport,\
-                                 GetPatientWithFilter, GetPatientWithDisease
+                                 GetPatientWithFilter, GetPatientWithDisease, GetStatistic
 from web.backend.Auth import AdminLogin, TokenRefresh, CheckIfTokenExpire
 
 
@@ -24,7 +24,10 @@ class Server:
         self.api.add_resource(PostSickPerson, '/postSickPerson')
         self.api.add_resource(PostDisease, '/postDisease')
         self.api.add_resource(AddDiseaseToPerson, '/addDiseaseToPerson')
-        self.api.add_resource(PostContactToPerson, '/addContactToPerson')
+        self.api.add_resource(AddContactToPerson, '/addContactToPerson')
+
+        # Requests for statistic
+        self.api.add_resource(GetStatistic, '/getStatistic')
 
         self.api.add_resource(GetPatientNSbyPassport, '/getPatientNSbyPassport')
         self.api.add_resource(GetAllDiseaseForRequiredPerson, '/getPersonDiseases')
