@@ -92,6 +92,27 @@ class AddDiseaseToPerson(Resource):
         return "sickPerson was taken new disease"
 
 #GET
+#все болезни
+class GetAllDisease(Resource):
+    def get(self):
+        diseases = ""
+        for disease in Disease.nodes:
+            diseases += " {"
+            diseases += '"name" : "' + str(disease.name) + '",'
+            diseases += "} , "
+        return "[ " + diseases + " ]"
+
+#все страны
+class GetAllDisease(Resource):
+    def get(self):
+        countries = ""
+        for sickPerson in SickPerson.nodes:
+            for countries in sickPerson.contry:
+                countries += " {"
+                countries += '"name" : "' + str(disease.country) + '",'
+                countries += "} , "
+        return "[ " + diseases + " ]"
+
 class GetAllDiseaseForRequiredPerson(Resource):
     def get(self):
         parser = reqparse.RequestParser()
@@ -139,7 +160,6 @@ class GetAllPatients(Resource):
                 responce += '"name" : "' + _disease.name + '", '
                 responce += '"diseaseStart" : "' + str(_sickPerson.diseases.relationship(_disease).diseaseStart) + '", '
                 responce += '"diseaseEnd" : "' + str(_sickPerson.diseases.relationship(_disease).diseaseEnd) + '" '
-
                 responce += "} , "
             if responce != responceSave:
                 responce = responce[0:len(responce)-2]
@@ -284,7 +304,7 @@ class GetPatientWithFilter(Resource):
         return "[ " + responce + " ]"
 
 '''
-# Запрос для фильтра Patient base
+# Запрос для фильтра Statistic
 class GetPatientWithFilter(Resource):
     def get(self):
         def printOut(responce, _sickPerson):
@@ -313,6 +333,7 @@ class GetPatientWithFilter(Resource):
 
         _sickPerson = {}
         responce = ""
+        count
         nullResponce = ""
         for sickPerson in SickPerson.nodes:
             # DISEASE
