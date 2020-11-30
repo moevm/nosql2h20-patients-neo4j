@@ -20,7 +20,7 @@ class PatientResume extends Component {
             age: "",
             birthDay: "",
             country: "",
-            city: "",
+            city: "",        
             diseaseName: "",
             diseaseStart: "",
             diseaseEnd: "",
@@ -34,6 +34,7 @@ class PatientResume extends Component {
     handleChange(event) {
         const name = event.target.name;
         const value = event.target.value;
+        console.log(name);
     
         this.setState({
             [name]: value
@@ -49,6 +50,7 @@ class PatientResume extends Component {
             });
             return;
         }
+
         const data = new FormData(event.target);
         const diseaseData = new FormData();
         const patientData = new FormData();
@@ -59,7 +61,7 @@ class PatientResume extends Component {
             if(i < numberInputPatientData) {
                 patientData.append(name, value);
             } else {
-                diseaseData.append(name, value)
+                diseaseData.append(name, value);
             }
             i++;
         }
@@ -83,8 +85,10 @@ class PatientResume extends Component {
             displayErrors: false,
         });
         
-        // Axios.post("/postSickPerson", patientData);
-        // Axios.post("/addDiseaseToPerson", diseaseData);
+        Axios.post("/postSickPerson", patientData).then(r => {
+            console.log(r.data);
+            Axios.post("/addDiseaseToPerson", diseaseData);
+        })
     }
 
       render() {
@@ -132,9 +136,10 @@ class PatientResume extends Component {
                             </div>
                             <div className="w3-container" style={input}>
                                 <label htmlFor="gender" className="w3-quarter">Gender:</label>
-                                <select value={this.state.value} 
+                                <select name="gender"
+                                        value={this.state.gender} 
                                         onChange={this.handleChange}
-                                        className="w3-half"
+                                        className="w3-half w3-input w3-border w3-round"
                                         required>
                                     <option value="Male">Male</option>
                                     <option value="Female">Female</option>
