@@ -345,9 +345,11 @@ class GetPatientWithPassport(Resource):
                 _sickPerson = sickPerson
                 responce = printOut(responce, _sickPerson)
 
+        retCode = '0'
         if responce == nullResponce:
-            return "Patients not found"
-        return "[ " + responce[2:] + " ]"
+            retCode = '1'
+            return '{' + '"retCode" : "' + retCode + '",' + '" [ ]}"'
+        return '{' + '"retCode" : "' + retCode + '",' + '" [ "' + responce[2:] + '" ]}"'
 
 
 class GetPatientWithNameAndSurname(Resource):
@@ -382,9 +384,12 @@ class GetPatientWithNameAndSurname(Resource):
             if sickPerson.name == args['name'] and sickPerson.surname == args['surname']:
                 _sickPerson = sickPerson
                 responce = printOut(responce, _sickPerson)
+
+        retCode = '0'
         if responce == nullResponce:
-            return "Patients not found"
-        return "[ " + responce[2:] + " ]"
+            retCode = '1'
+            return '{' + '"retCode" : "' + retCode + '",' + '" [ ]}"'
+        return '{' + '"retCode" : "' + retCode + '",' + '" [ "' + responce[2:] + '" ]}"'
 
 
 class GetPatientWithDisease(Resource):
@@ -478,9 +483,11 @@ class GetPatientWithFilter(Resource):
                                 if args['country'] == 'World':
                                     _sickPerson = sickPerson
                                     responce = printOut(responce, _sickPerson)
+        retCode = '0'
         if responce == nullResponce:
-            return "Patients not found"
-        return "[ " + responce[2:] + " ]"
+            retCode = '1'
+            return '{' + '"retCode" : "' + retCode + '",' + '" [ ]}"'
+        return '{' + '"retCode" : "' + retCode + '",' + '" [ "' + responce[2:] + '" ]}"'
 
 
 class ExportBase(Resource):
