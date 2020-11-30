@@ -327,7 +327,7 @@ class GetPatientWithPassport(Resource):
             responce += '" }, "patientDiseases" : ['
             responceSave = responce
             for Disease in _sickPerson.diseases:
-                responce += '"name" : "' + Disease.name + '" '
+                responce += Disease.name + '" '
                 responce += ", "
             if responce != responceSave:
                 responce = responce[0:len(responce) - 2]
@@ -365,7 +365,7 @@ class GetPatientWithNameAndSurname(Resource):
             responce += '" }, "patientDiseases" : ['
             responceSave = responce
             for Disease in _sickPerson.diseases:
-                responce += '"name" : "' + Disease.name + '" '
+                responce += Disease.name + '" '
                 responce += ", "
             if responce != responceSave:
                 responce = responce[0:len(responce) - 2]
@@ -425,7 +425,7 @@ class GetPatientWithFilter(Resource):
             responce += '" }, "patientDiseases" : ['
             responceSave = responce
             for Disease in _sickPerson.diseases:
-                responce += '"name" : "' + Disease.name + '" '
+                responce += + Disease.name + '" '
                 responce += ", "
             if responce != responceSave:
                 responce = responce[0:len(responce)-2]
