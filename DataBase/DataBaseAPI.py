@@ -145,6 +145,20 @@ class GetAllCities(Resource):
 
 class GetStatistic(Resource):
     def get(self):
+        def count(arg, patient, suitablePatients, patientDS):
+            if (arg == 'Year'):
+                scalePeriodMap[patientDS.year] += 1
+            if (arg == 'Month'):
+                scalePeriodMap[str(patientDS.year) + "-" + str(patientDS.month)] += 1
+            if (arg == 'Day'):
+                scalePeriodMap[str(patientDS.year) + "-" + str(patientDS.month) + "-" + str(patientDS.day)] += 1
+
+            suitablePatients.append(patient)
+            print(suitablePatients)
+            return suitablePatients
+
+
+
         parser = reqparse.RequestParser()
         parser.add_argument('diseaseName', type=str)
         parser.add_argument('scale', type=str)
@@ -219,42 +233,35 @@ class GetStatistic(Resource):
                         if patient.gender == args['gender']:
                             # COUNTRY -> CITY
                             if patient.country == args['country'] and patient.city == args['city']:
-                                _patient = patient
-                                _patientDS = _patient.diseases.relationship(disease).diseaseStart
+                                suitablePatients = count(args['scale'], patient, suitablePatients, patientDS)
+
                             # COUNTRY
                             else :
                                 if patient.country == args['country']:
-                                    _patient = patient
-                                    _patientDS = _patient.diseases.relationship(disease).diseaseStart
+                                    suitablePatients = count(args['scale'], patient, suitablePatients, patientDS)
+
+
                             # WORLD
                                 if args['country'] == 'World':
-                                    _patient = patient
-                                    _patientDS = _patient.diseases.relationship(disease).diseaseStart
+                                    suitablePatients = count(args['scale'], patient, suitablePatients, patientDS)
+
+
                         # Gender All
                         else:
                             if args['gender'] == 'All':
                             # COUNTRY -> CITY
                                 if patient.country == args['country'] and patient.city == args['city']:
-                                    _patient = patient
-                                    _patientDS = _patient.diseases.relationship(disease).diseaseStart
+                                    suitablePatients = count(args['scale'], patient, suitablePatients, patientDS)
+
                             # COUNTRY
                                 else:
                                     if patient.country == args['country']:
-                                        _patient = patient
-                                        _patientDS = _patient.diseases.relationship(disease).diseaseStart
+                                        suitablePatients = count(args['scale'], patient, suitablePatients, patientDS)
+
                             # WORLD
                                     if args['country'] == 'World':
-                                        _patient = patient
-                                        _patientDS = _patient.diseases.relationship(disease).diseaseStart
-                        if (args['scale'] == "Year"):
-                            scalePeriodMap[_patientDS.year] += 1
-                        if (args['scale'] == "Month"):
-                            scalePeriodMap[str(_patientDS.year) + "-" + str(_patientDS.month)] += 1
-                        if (args['scale'] == "Day"):
-                            scalePeriodMap[str(_patientDS.year) + "-" + str(_patientDS.month) + "-" + str(
-                            _patientDS.day)] += 1
+                                        suitablePatients = count(args['scale'], patient, suitablePatients, patientDS)
 
-                        suitablePatients.append(_patient)
         response = []
         for value in scalePeriodMap.keys():
             response.append( { "xVal" : value, "yVal" : scalePeriodMap[value] } )
@@ -345,11 +352,9 @@ class GetPatientWithPassport(Resource):
                 _sickPerson = sickPerson
                 responce = printOut(responce, _sickPerson)
 
-        retCode = '0'
         if responce == nullResponce:
-            retCode = '1'
-            return '{' + '"retCode" : "' + retCode + '",' + '" [ ]}"'
-        return '{' + '"retCode" : "' + retCode + '",' + '" [ "' + responce[2:] + '" ]}"'
+            return "[]"
+        return "[ " + responce[2:] + " ]"
 
 
 class GetPatientWithNameAndSurname(Resource):
@@ -385,11 +390,9 @@ class GetPatientWithNameAndSurname(Resource):
                 _sickPerson = sickPerson
                 responce = printOut(responce, _sickPerson)
 
-        retCode = '0'
         if responce == nullResponce:
-            retCode = '1'
-            return '{' + '"retCode" : "' + retCode + '",' + '" [ ]}"'
-        return '{' + '"retCode" : "' + retCode + '",' + '" [ "' + responce[2:] + '" ]}"'
+            return "[]"
+        return "[ " + responce[2:] + " ]"
 
 
 class GetPatientWithDisease(Resource):
@@ -483,11 +486,9 @@ class GetPatientWithFilter(Resource):
                                 if args['country'] == 'World':
                                     _sickPerson = sickPerson
                                     responce = printOut(responce, _sickPerson)
-        retCode = '0'
         if responce == nullResponce:
-            retCode = '1'
-            return '{' + '"retCode" : "' + retCode + '",' + '" [ ]}"'
-        return '{' + '"retCode" : "' + retCode + '",' + '" [ "' + responce[2:] + '" ]}"'
+            return "[]"
+        return "[ " + responce[2:] + " ]"
 
 
 class ExportBase(Resource):
