@@ -1,61 +1,11 @@
 import React, { useMemo, useState, useEffect } from "react";
-import axios from "axios";
+import Axios from "axios";
 
 import PatientForm from "./PatientForm";
 import PatientTable from "./PatientTable";
 import "../css/PatientBase.css";
 
-const sickPersons = [
-    {
-       "patientInfo":{
-          "passportNumber":"33333333",
-          "name":"Stepa",
-          "surname":"Krivoi",
-          "gender":"Male",
-          "age":"54",
-          "birthDay":"1954-04-05",
-          "country":"Russia",
-          "city":"Spb"
-       },
-       "patientDiseases":[
-          "Covid-19",
-          "Rak",
-          "Speed"
-       ]
-    },
-    {
-       "patientInfo":{
-          "passportNumber":"44343443",
-          "name":"Lola",
-          "surname":"",
-          "gender":"Male",
-          "age":"14",
-          "birthDay":"2006-02-04",
-          "country":"Russia",
-          "city":"Pskov"
-       },
-       "patientDiseases":[
-          "Speed"
-       ]
-    },
-    {
-       "patientInfo":{
-          "passportNumber":"54363656",
-          "name":"Nika",
-          "surname":"Plot",
-          "gender":"Female",
-          "age":"34",
-          "birthDay":"1985-04-12",
-          "country":"Finland",
-          "city":"New-Yourk"
-       },
-       "patientDiseases":[
-          "Covid-19",
-          "Rak"
-       ]
-    }
- ]
-
+let sickPersons = []
 
 const Genres = ({ values }) => {
     return (
@@ -111,20 +61,14 @@ function PatientBase() {
         []
       );
 
-
-    const [data, setData] = useState(sickPersons)
-
-    useEffect(() => {
-        (async () => {
-          const result = await axios("/getAllPatients");
-          console.log(result.data);
-          setData(result.data);
-        })();
-      }, []);
-
+    updateData({})
+    let [data, setData] = useState(sickPersons)
 
     function updateData(newData) {
-        setData(newData);
+        Axios.get("/getAllPatients").then(res => {
+            let jsonData = JSON.parse( res.data )
+            setData( jsonData );
+        })
     }
     return (
             <div className="w3-row" style={{display: "flex",alignItems: "stretch"}}>
