@@ -156,11 +156,11 @@ class GetStatistic(Resource):
         periodEnd = datetime.datetime.strptime(args['periodEnd'], '%Y-%m-%d').date()
         scalePeriodMap = {}
 
-        if( args['scale'] == "year" ):
+        if( args['scale'] == "Year" ):
             for year in range( periodBegin.year, periodEnd.year + 1):
                 scalePeriodMap[year] = 0
 
-        if (args['scale'] == "month"):
+        if (args['scale'] == "Month"):
             for year in range(periodBegin.year, periodEnd.year + 1):
                 if (periodBegin.year == periodEnd.year):
                     for month in range(periodBegin.month, periodEnd.month + 1):
@@ -180,7 +180,7 @@ class GetStatistic(Resource):
                 for month in range(1, 13):
                     scalePeriodMap[str(year) + "-" + str(month)] = 0
 
-        if (args['scale'] == "day"):
+        if (args['scale'] == "Day"):
             for year in range(periodBegin.year, periodEnd.year + 1):
                 for month in range(periodBegin.month, periodEnd.month + 1):
                     if( periodBegin.year == periodEnd.year and periodBegin.month == periodEnd.month ):
@@ -202,28 +202,59 @@ class GetStatistic(Resource):
                         scalePeriodMap[str(year) + "-" + str(month) + "-" + str(day)] = 0
 
         suitablePatients = []
+        _patient = {}
         for patient in SickPerson.nodes:
             for disease in patient.diseases:
                 patientDS = patient.diseases.relationship(disease).diseaseStart
-                if disease.name == args['diseaseName'] \
-                    and patient.gender == args['gender'] \
-                    and patient.city == args['city'] \
-                    and patient.age >= args['ageBegin'] \
-                    and patient.age <= args['ageEnd'] \
-                    and periodBegin <= patientDS <= periodEnd:
+                #AGE
+                if patient.age >= args['ageBegin'] and patient.age <= args['ageEnd']:
+                    # DISEASE and PERIOD
+                    if disease.name == args['diseaseName'] and periodBegin <= patientDS <= periodEnd:
+                        # Gender M/F
+                        if patient.gender == args['gender']:
+                            # COUNTRY -> CITY
+                            if patient.country == args['country'] and patient.city == args['city']:
+                                _patient = patient
+                                _patientDS = _patient.diseases.relationship(disease).diseaseStart
+                            # COUNTRY
+                            else :
+                                if patient.country == args['country']:
+                                    _patient = patient
+                                    _patientDS = _patient.diseases.relationship(disease).diseaseStart
+                            # WORLD
+                                if args['country'] == 'World':
+                                    _patient = patient
+                                    _patientDS = _patient.diseases.relationship(disease).diseaseStart
+                        # Gender All
+                        else:
+                            if args['gender'] == 'All':
+                            # COUNTRY -> CITY
+                                if patient.country == args['country'] and patient.city == args['city']:
+                                    _patient = patient
+                                    _patientDS = _patient.diseases.relationship(disease).diseaseStart
+                            # COUNTRY
+                                else:
+                                    if patient.country == args['country']:
+                                        _patient = patient
+                                        _patientDS = _patient.diseases.relationship(disease).diseaseStart
+                            # WORLD
+                                    if args['country'] == 'World':
+                                        _patient = patient
+                                        _patientDS = _patient.diseases.relationship(disease).diseaseStart
+                        if (args['scale'] == "Year"):
+                            scalePeriodMap[_patientDS.year] += 1
+                        if (args['scale'] == "Month"):
+                            scalePeriodMap[str(_patientDS.year) + "-" + str(_patientDS.month)] += 1
+                        if (args['scale'] == "Day"):
+                            scalePeriodMap[str(_patientDS.year) + "-" + str(_patientDS.month) + "-" + str(
+                            _patientDS.day)] += 1
 
-                    if (args['scale'] == "year"):
-                        scalePeriodMap[ patientDS.year ] += 1
-                    if (args['scale'] == "month"):
-                        scalePeriodMap[ str(patientDS.year) + "-" + str(patientDS.month) ] += 1
-                    if (args['scale'] == "day"):
-                        scalePeriodMap[ str(patientDS.year) + "-" + str(patientDS.month) + "-" + str(patientDS.day)] += 1
-                    suitablePatients.append( patient )
-
+                        suitablePatients.append(_patient)
         response = []
         for value in scalePeriodMap.keys():
             response.append( { "xVal" : value, "yVal" : scalePeriodMap[value] } )
         return response
+
 
 class GetAllDiseaseForRequiredPerson(Resource):
     def get(self):
@@ -271,7 +302,6 @@ class GetAllPatients(Resource):
             responceSave = responce
             for _disease in _sickPerson.diseases:
                 responce += '"' + _disease.name + '", '
-
             if responce != responceSave:
                 responce = responce[0:len(responce)-2]
             responce += "] }"
@@ -288,7 +318,6 @@ class GetPatientWithPassport(Resource):
         for sickPerson in SickPerson.nodes:
             if sickPerson.passportNumber == args['passportNumber']:
                 _sickPerson = sickPerson
-
         return [{"passportNumber": _sickPerson.passportNumber},
                 {"name": _sickPerson.name},
                 {"surname": _sickPerson.surname},
@@ -311,7 +340,6 @@ class GetPatientWithNameAndSurname(Resource):
         for sickPerson in SickPerson.nodes:
             if sickPerson.name == args['name'] and sickPerson.surname == args['surname']:
                 _sickPerson = sickPerson
-
         return [{"passportNumber": _sickPerson.passportNumber},
                 {"name": _sickPerson.name},
                 {"surname": _sickPerson.surname},
@@ -334,7 +362,6 @@ class GetPatientWithDisease(Resource):
             for Disease in sickPerson.diseases:
                 if Disease.name == args['disease']:
                     _sickPerson = sickPerson
-
         return [{"passportNumber": _sickPerson.passportNumber},
                 {"name": _sickPerson.name},
                 {"surname": _sickPerson.surname},
@@ -420,6 +447,7 @@ class GetPatientWithFilter(Resource):
             return "Patients not found"
         return "[ " + responce[2:] + " ]"
 
+
 class ExportBase(Resource):
     def get(self):
         responce = '"patientList":['
@@ -480,10 +508,10 @@ class ExportBase(Resource):
 
         responce = "{" + responce + "}"
 
-        jsonData = json.dumps(responce)
         with open("data.json", "w") as file:
-            file.write(jsonData)
+            file.write(responce)
         return "Database export completed successfully"
+
 
 class ImportBase(Resource):
     def get(self):
