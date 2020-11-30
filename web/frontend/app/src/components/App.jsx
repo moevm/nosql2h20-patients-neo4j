@@ -10,6 +10,7 @@ import Menu from "./Menu";
 import PatientBase from "./PatientBase";
 import PatientResume from "./PatientResume";
 import Statistic from "./Statistic"
+import ImportExportPage from "./ImportExportPage";
 
 function App() {
     let [login, setLogin] = React.useState(false);
@@ -30,6 +31,7 @@ function App() {
                     <Route path="/patientbase" exact component={PatientBase}/>
                     <Route path="/patientresume" exact component={PatientResume}/>
                     <Route path="/statistic" exact component={Statistic}/>
+                    <Route path="/importexport" exact component={ImportExportPage}/>
                 </Switch>
             </Router>
         </React.Fragment>

@@ -16,17 +16,12 @@ class Menu extends Component {
                     Add Patient
                 </a>
 
-                <a className="w3-button" href="#" 
-                    style={{ padding: "2rem", marginTop: "1rem" }}>
-                    Edit Patient
-                </a>
-
                 <a className="w3-button" href="/patientbase"
                     style={{ padding: "2rem", marginTop: "1rem" }}>
                     Patient Base
                 </a>
 
-                <a className="w3-button" href="#"
+                <a className="w3-button" href="/importexport"
                     style={{ padding: "2rem", marginTop: "1rem" }}>
                     Import/Export
                 </a>
