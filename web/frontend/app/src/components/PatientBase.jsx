@@ -66,6 +66,7 @@ function PatientBase() {
     useEffect(() => {
         (async () => {
             await Axios.get("/getAllPatients").then(res => {
+            console.log(res.data)
             setData(JSON.parse(res.data));
           })
         })();
