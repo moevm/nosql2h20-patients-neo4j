@@ -12,6 +12,7 @@
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.0",
     "react-table": "^7.6.2",
+    "recharts": "^1.8.5",
     "web-vitals": "^0.2.4"
   },
   "scripts": {
@@ -38,5 +39,5 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "http://0.0.0.0:8080"
+  "proxy": "http://localhost:8080"
 }

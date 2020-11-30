@@ -1,13 +1,12 @@
 import React, { Component } from "react";
 
-
 class Menu extends Component {
 
 
     render() {
         return (
           <div style={{display: "flex", flexDirection: "column", alignItems: "center"}}>
-                <a className="w3-button w3-round"  href="/" 
+                <a className="w3-button w3-round"  href="/statistic"
                     style={{ padding: "2rem", marginTop: "1rem" }}>
                     Statistics
                 </a>
