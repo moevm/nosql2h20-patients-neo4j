@@ -51,6 +51,8 @@ class PostDisease(Resource):
         args = parser.parse_args()
         Disease(name=args['name']).save()
         return "New disease is added"
+
+
 class AddContactToPerson(Resource):
     def post(self):
         parser = reqparse.RequestParser()
@@ -93,6 +95,7 @@ class AddDiseaseToPerson(Resource):
                   'diseaseEnd' : datetime.datetime.strptime(args['diseaseEnd'],'%Y-%m-%d').date() } )
         return "sickPerson was taken new disease"
 
+
 class GetAllDisease(Resource):
     def get(self):
         diseases = ""
@@ -101,6 +104,7 @@ class GetAllDisease(Resource):
             diseases += '"name" : "' + str(disease.name) + '",'
             diseases += "} , "
         return "[ " + diseases + " ]"
+
 
 class GetAllCountries(Resource):
     def get(self):
@@ -137,6 +141,7 @@ class GetAllCities(Resource):
                 cities += '"name" : "' + str(item) + '"'
                 cities += "} , "
         return "[ " + cities + " ]"
+
 
 class GetStatistic(Resource):
     def get(self):
@@ -310,45 +315,78 @@ class GetAllPatients(Resource):
 
 class GetPatientWithPassport(Resource):
     def get(self):
+        def printOut(responce, _sickPerson):
+            responce += ', { "patientInfo" : { '
+            responce += '"passportNumber" : "' + str(_sickPerson.passportNumber) + '", '
+            responce += '"name" : "' + str(_sickPerson.name) + '", '
+            responce += '"surname" : "' + str(_sickPerson.surname) + '", '
+            responce += '"gender" : "' + str(_sickPerson.gender) + '", '
+            responce += '"age" : "' + str(_sickPerson.age) + '", '
+            responce += '"country" : "' + str(_sickPerson.country) + '", '
+            responce += '"city" : "' + str(_sickPerson.city)
+            responce += '" }, "patientDiseases" : ['
+            responceSave = responce
+            for Disease in _sickPerson.diseases:
+                responce += '"name" : "' + Disease.name + '" '
+                responce += ", "
+            if responce != responceSave:
+                responce = responce[0:len(responce) - 2]
+            responce += "] }"
+            return responce
+
         parser = reqparse.RequestParser()
         parser.add_argument('passportNumber', type=int)
         args = parser.parse_args()
 
+        responce = ""
+        nullResponce = ""
         _sickPerson = {}
         for sickPerson in SickPerson.nodes:
             if sickPerson.passportNumber == args['passportNumber']:
                 _sickPerson = sickPerson
-        return [{"passportNumber": _sickPerson.passportNumber},
-                {"name": _sickPerson.name},
-                {"surname": _sickPerson.surname},
-                {"age": _sickPerson.age},
-                [[{"diseases": Disease.name}] for Disease in _sickPerson.diseases],
-                {"gender": _sickPerson.gender},
-                {"country": _sickPerson.country},
-                {"city": _sickPerson.city}
-               ]
+                responce = printOut(responce, _sickPerson)
+
+        if responce == nullResponce:
+            return "Patients not found"
+        return "[ " + responce[2:] + " ]"
 
 
 class GetPatientWithNameAndSurname(Resource):
     def get(self):
+        def printOut(responce, _sickPerson):
+            responce += ', { "patientInfo" : { '
+            responce += '"passportNumber" : "' + str(_sickPerson.passportNumber) + '", '
+            responce += '"name" : "' + str(_sickPerson.name) + '", '
+            responce += '"surname" : "' + str(_sickPerson.surname) + '", '
+            responce += '"gender" : "' + str(_sickPerson.gender) + '", '
+            responce += '"age" : "' + str(_sickPerson.age) + '", '
+            responce += '"country" : "' + str(_sickPerson.country) + '", '
+            responce += '"city" : "' + str(_sickPerson.city)
+            responce += '" }, "patientDiseases" : ['
+            responceSave = responce
+            for Disease in _sickPerson.diseases:
+                responce += '"name" : "' + Disease.name + '" '
+                responce += ", "
+            if responce != responceSave:
+                responce = responce[0:len(responce) - 2]
+            responce += "] }"
+            return responce
+
         parser = reqparse.RequestParser()
         parser.add_argument('name', type=str)
         parser.add_argument('surname', type=str)
         args = parser.parse_args()
 
         _sickPerson = {}
+        responce = ""
+        nullResponce = ""
         for sickPerson in SickPerson.nodes:
             if sickPerson.name == args['name'] and sickPerson.surname == args['surname']:
                 _sickPerson = sickPerson
-        return [{"passportNumber": _sickPerson.passportNumber},
-                {"name": _sickPerson.name},
-                {"surname": _sickPerson.surname},
-                {"age": _sickPerson.age},
-                [[{"diseases": Disease.name}] for Disease in _sickPerson.diseases],
-                {"gender": _sickPerson.gender},
-                {"country": _sickPerson.country},
-                {"city": _sickPerson.city}
-               ]
+                responce = printOut(responce, _sickPerson)
+        if responce == nullResponce:
+            return "Patients not found"
+        return "[ " + responce[2:] + " ]"
 
 
 class GetPatientWithDisease(Resource):
