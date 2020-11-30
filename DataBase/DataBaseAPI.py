@@ -53,7 +53,7 @@ class PostDisease(Resource):
         return "New disease is added"
 
 
-class PostContactToPerson(Resource):
+class AddContactToPerson(Resource):
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument('sickPassportNumber', type=int)
@@ -343,48 +343,64 @@ class GetPatientWithFilter(Resource):
 
 class ExportBase(Resource):
     def get(self):
-        responce = ""
-        for _sickPerson in SickPerson.nodes:
-            responce += ', { "patientInfo" : { '
-            responce += '"passportNumber" : "' + str(_sickPerson.passportNumber) + '", '
-            responce += '"name" : "' + str(_sickPerson.name) + '", '
-            responce += '"surname" : "' + str(_sickPerson.surname) + '", '
-            responce += '"gender" : "' + str(_sickPerson.gender) + '", '
-            responce += '"age" : "' + str(_sickPerson.age) + '", '
-            responce += '"birthDay" : "' + str(_sickPerson.birthDay) + '", '
-            responce += '"country" : "' + str(_sickPerson.country) + '", '
-            responce += '"city" : "' + str(_sickPerson.city)
+        responce = '"patientList":['
+        for patient in SickPerson.nodes:
+            responce += "{"
+            responce += '"passportNumber":"' + str(patient.passportNumber) + '",'
+            responce += '"name":"' + str(patient.name) + '",'
+            responce += '"surname":"' + str(patient.surname) + '",'
+            responce += '"gender":"' + str(patient.gender) + '",'
+            responce += '"age":"' + str(patient.age) + '",'
+            responce += '"birthDay":"' + str(patient.birthDay) + '",'
+            responce += '"country":"' + str(patient.country) + '",'
+            responce += '"city":"' + str(patient.city) + '"},'
+        responce = responce[0:len(responce) - 1]
+        responce += "],"
 
-            responce += '" }, "patientDiseases" : ['
-            responceSave = responce
-            for _disease in _sickPerson.diseases:
-                responce += " {"
-                responce += '"name" : "' + _disease.name + '", '
-                responce += '"diseaseStart" : "' + str(_sickPerson.diseases.relationship(_disease).diseaseStart) + '", '
-                responce += '"diseaseEnd" : "' + str(_sickPerson.diseases.relationship(_disease).diseaseEnd) + '" '
-                responce += "} , "
-            if responce != responceSave:
-                responce = responce[0:len(responce)-2]
-            responce += "]"
+        responce += '"diseaseList":['
+        for disease in Disease.nodes:
+            responce += '{"name":"' + str(disease.name) + '"},'
+        responce = responce[0:len(responce) - 1]
+        responce += "],"
 
-            responce += '", "patientsContacts" : ['
-            responceSave1 = responce
-            for contact in _sickPerson.contacts:
-                responce += " {"
-                responce += '"passportNumber" : "' + str(contact.passportNumber) + '", '
-                responce += '"name" : "' + str(contact.name) + '", '
-                responce += '"surname" : "' + str(contact.surname) + '", '
-                responce += '"gender" : "' + str(contact.gender) + '", '
-                responce += '"age" : "' + str(contact.age) + '", '
-                responce += '"birthDay" : "' + str(contact.birthDay) + '", '
-                responce += '"country" : "' + str(contact.country) + '", '
-                responce += '"city" : "' + str(contact.city)
-                responce += "} , "
-            if responce != responceSave1:
-                responce = responce[0:len(responce) - 2]
-            responce += "] }"
+        responce += '"contactList":['
+        for contact in Contact.nodes:
+            responce += "{"
+            responce += '"passportNumber":"' + str(contact.passportNumber) + '",'
+            responce += '"name":"' + str(contact.name) + '",'
+            responce += '"surname":"' + str(contact.surname) + '",'
+            responce += '"gender":"' + str(contact.gender) + '",'
+            responce += '"age":"' + str(contact.age) + '",'
+            responce += '"birthDay":"' + str(contact.birthDay) + '",'
+            responce += '"country":"' + str(contact.country) + '",'
+            responce += '"city":"' + str(contact.city) + '"'
+            responce += "},"
+        responce = responce[0:len(responce) - 1]
+        responce += "],"
 
-        responce = "[ " + responce[2:] + " ]"
+        responce += '"patientRelDisease":['
+        for patient in SickPerson.nodes:
+            for disease in patient.diseases:
+                responce += "{"
+                responce += '"passportNumber":"' + str(patient.passportNumber) + '",'
+                responce += '"name":"' + disease.name + '",'
+                responce += '"diseaseStart":"' + str(patient.diseases.relationship(disease).diseaseStart) + '",'
+                responce += '"diseaseEnd":"' + str(patient.diseases.relationship(disease).diseaseEnd) + '"'
+                responce += "},"
+        responce = responce[0:len(responce)-1]
+        responce += '],'
+
+        responce += '"patientRelContact":['
+        for patient in SickPerson.nodes:
+            for contact in patient.contacts:
+                responce += "{"
+                responce += '"patientPassportNumber":"' + str(patient.passportNumber) + '",'
+                responce += '"contactPassportNumber":"' + str(contact.passportNumber) + '"'
+                responce += "},"
+        responce = responce[0:len(responce) - 1]
+        responce += "]"
+
+        responce = "{" + responce + "}"
 
         jsonData = json.dumps(responce)
         with open("data.json", "w") as file:
@@ -393,79 +409,63 @@ class ExportBase(Resource):
 
 class ImportBase(Resource):
     def get(self):
-        with open('data.json') as json_file:
-            data = json.load(json_file)
-        print(data) 
+        with open('data_1.json') as json_file:
+            jsonData = json.load(json_file)
+        for patient in SickPerson.nodes:
+            patient.delete()
+
+        for contact in Contact.nodes:
+            contact.delete()
+
+        for disease in Disease.nodes:
+            disease.delete()
+
+        for patient in jsonData['patientList']:
+            SickPerson( name=patient['name'],
+                        surname=patient['surname'],
+                        age=patient['age'],
+                        birthDay=datetime.datetime.strptime(patient['birthDay'],'%Y-%m-%d').date(),
+                        country=patient['country'],
+                        city=patient['city'],
+                        gender=patient['gender'],
+                        passportNumber=patient['passportNumber']).save()
+
+        for contact in jsonData['contactList']:
+            Contact(name=contact['name'],
+                    surname=contact['surname'],
+                    age=contact['age'],
+                    birthDay=datetime.datetime.strptime(contact['birthDay'], '%Y-%m-%d').date(),
+                    country=contact['country'],
+                    city=contact['city'],
+                    gender=contact['gender'],
+                    passportNumber=contact['passportNumber']).save()
+
+        for disease in jsonData['diseaseList']:
+            Disease(name=disease['name']).save()
+
+        _patient = {}
+        _disease = {}
+        for patientRelDisease in jsonData['patientRelDisease']:
+            for sickPerson in SickPerson.nodes:
+                if sickPerson.passportNumber == int(patientRelDisease['passportNumber']):
+                    _patient = sickPerson
+
+            for disease in Disease.nodes:
+                if disease.name == patientRelDisease['name']:
+                    _disease = disease
+            _patient.diseases.connect( _disease,
+                {'diseaseStart': datetime.datetime.strptime(patientRelDisease['diseaseStart'], '%Y-%m-%d').date(),
+                 'diseaseEnd': datetime.datetime.strptime(patientRelDisease['diseaseEnd'], '%Y-%m-%d').date()})
+
+        _patient = {}
+        _contact = {}
+        for patientRelDisease in jsonData['patientRelContact']:
+            for sickPerson in SickPerson.nodes:
+                if sickPerson.passportNumber == int(patientRelDisease['patientPassportNumber']):
+                    _patient = sickPerson
+
+            for contact in Contact.nodes:
+                if contact.passportNumber == int(patientRelDisease['contactPassportNumber']):
+                    _contact = contact
+            _patient.contacts.connect(_contact)
         return "Database import completed successfully"
-
-'''
-# Запрос для фильтра Patient base
-class GetPatientWithFilter(Resource):
-    def get(self):
-        def printOut(responce, _sickPerson):
-            responce += '{"passportNumber" : "' + str(_sickPerson.passportNumber) + '", '
-            responce += '"name" : "' + str(_sickPerson.name) + '", '
-            responce += '"surname" : "' + str(_sickPerson.surname) + '", '
-            responce += '"gender" : "' + str(_sickPerson.gender) + '", '
-            responce += '"age" : "' + str(_sickPerson.age) + '", '
-            responce += '"country" : "' + str(_sickPerson.country) + '", '
-            responce += '"city" : "' + str(_sickPerson.city)
-            for Disease in _sickPerson.diseases:
-                responce += '" }, "patientDiseases" : [ ' + Disease.name + ','
-            responce += '] }"'
-            return responce
-
-        parser = reqparse.RequestParser()
-        parser.add_argument('disease', type=str)
-        parser.add_argument('country', type=str)
-        parser.add_argument('city', type=str)
-        parser.add_argument('gender', type=str)
-        parser.add_argument('from_age', type=int)
-        parser.add_argument('to_age', type=int)
-        parser.add_argument('time', type=int)
-        parser.add_argument('scale', type=int)
-        args = parser.parse_args()
-
-        _sickPerson = {}
-        responce = ""
-        nullResponce = ""
-        for sickPerson in SickPerson.nodes:
-            # DISEASE
-            for Disease in sickPerson.diseases:
-                if Disease.name == args['disease']:
-                    # AGE
-                    if sickPerson.age >= args['from_age'] and sickPerson.age <= args['to_age']:
-                        # M/F
-                        if sickPerson.gender == args['gender']:
-                            # COUNTRY -> CITY
-                            if sickPerson.country == args['country'] and sickPerson.city == args['city']:
-                                _sickPerson = sickPerson
-                                responce = printOut(responce, _sickPerson)
-                            # COUNTRY
-                            else:
-                                if sickPerson.country == args['country']:
-                                    _sickPerson = sickPerson
-                                    responce = printOut(responce, _sickPerson)
-                            # WORLD
-                                if args['country'] == 'World':
-                                    _sickPerson = sickPerson
-                                    responce = printOut(responce, _sickPerson)
-                        # ALL
-                        else:
-                            if args['gender'] == 'All':
-                                # COUNTRY -> CITY
-                                if sickPerson.country == args['country'] and sickPerson.city == args['city']:
-                                    _sickPerson = sickPerson
-                                    responce = printOut(responce, _sickPerson)
-                                # COUNTRY
-                                else:
-                                    if sickPerson.country == args['country']:
-                                        _sickPerson = sickPerson
-                                        responce = printOut(responce, _sickPerson)
-                                # WORLD
-                                if args['country'] == 'World':
-                                    _sickPerson = sickPerson
-                                    responce = printOut(responce, _sickPerson)
-        if responce == nullResponce:
-            return "Patients not found"       
-        '''

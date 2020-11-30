@@ -2,7 +2,7 @@ from flask import Flask
 from flask_restful import Api
 from flask_jwt_extended import JWTManager
 from DataBase.DataBaseAPI import PostContact, PostSickPerson, \
-                                 PostContactToPerson, PostDisease, AddDiseaseToPerson, \
+                                 AddContactToPerson, PostDisease, AddDiseaseToPerson, \
                                  GetAllDiseaseForRequiredPerson, GetPatientWithPassport, \
                                  GetPatientWithNameAndSurname, GetAllPatients, GetPatientNSbyPassport,\
                                  GetPatientWithFilter, GetPatientWithDisease, GetAllCountries, \
@@ -30,7 +30,7 @@ class Server:
         self.api.add_resource(PostSickPerson, '/postSickPerson')
         self.api.add_resource(PostDisease, '/postDisease')
         self.api.add_resource(AddDiseaseToPerson, '/addDiseaseToPerson')
-        self.api.add_resource(PostContactToPerson, '/addContactToPerson')
+        self.api.add_resource(AddContactToPerson, '/addContactToPerson')
 
         self.api.add_resource(GetAllDisease, '/getAllDisease')
         self.api.add_resource(GetAllCountries, '/getAllCountries')
