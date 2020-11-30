@@ -5,101 +5,57 @@ import PatientForm from "./PatientForm";
 import PatientTable from "./PatientTable";
 import "../css/PatientBase.css";
 
+const sickPersons = [
+    {
+       "patientInfo":{
+          "passportNumber":"33333333",
+          "name":"Stepa",
+          "surname":"Krivoi",
+          "gender":"Male",
+          "age":"54",
+          "birthDay":"1954-04-05",
+          "country":"Russia",
+          "city":"Spb"
+       },
+       "patientDiseases":[
+          "Covid-19",
+          "Rak",
+          "Speed"
+       ]
+    },
+    {
+       "patientInfo":{
+          "passportNumber":"44343443",
+          "name":"Lola",
+          "surname":"",
+          "gender":"Male",
+          "age":"14",
+          "birthDay":"2006-02-04",
+          "country":"Russia",
+          "city":"Pskov"
+       },
+       "patientDiseases":[
+          "Speed"
+       ]
+    },
+    {
+       "patientInfo":{
+          "passportNumber":"54363656",
+          "name":"Nika",
+          "surname":"Plot",
+          "gender":"Female",
+          "age":"34",
+          "birthDay":"1985-04-12",
+          "country":"Finland",
+          "city":"New-Yourk"
+       },
+       "patientDiseases":[
+          "Covid-19",
+          "Rak"
+       ]
+    }
+ ]
 
-const sickPersons = [
-    {
-        "patientInfo":{
-        "passportNumber":"101032",
-        "name":"Egor Gabov",
-        "surname":"Gabov",
-        "gender":"None",
-        "age":"20",
-        "birthDay":"2000-10-10",
-        "country":"Russia",
-        "city":"спб"
-        },
-        "patientDiseases":[
-            "COVID",
-            "COVID-20"
-            // {
-            //     "name":"COVID",
-            //     "diseaseStart":"2020-10-10",
-            //     "diseaseEnd":"2020-10-10"
-            //  }
-        ]
-    }
-]
-/*
-const sickPersons = [
-    {
-       "patientInfo":{
-          "passportNumber":"101032",
-          "name":"Egor Gabov",
-          "surname":"Gabov",
-          "gender":"None",
-          "age":"20",
-          "birthDay":"2000-10-10",
-          "country":"Russia",
-          "city":"спб"
-       },
-       "patientDiseases":[
-          {
-             "name":"COVID",
-             "diseaseStart":"2020-10-10",
-             "diseaseEnd":"2020-10-10"
-          }
-       ]
-    },
-    {
-       "patientInfo":{
-          "passportNumber":"101032",
-          "name":"Egor Gabov",
-          "surname":"Gabov",
-          "gender":"None",
-          "age":"25",
-          "birthDay":"2000-10-10",
-          "country":"Russia",
-          "city":"спб"
-       },
-       "patientDiseases":[
-          
-       ]
-    },
-    {
-       "patientInfo":{
-          "passportNumber":"101032",
-          "name":"Egor Gabov",
-          "surname":"Gabov",
-          "gender":"None",
-          "age":"9",
-          "birthDay":"2000-10-10",
-          "country":"Russia",
-          "city":"спб"
-       },
-       "patientDiseases":[
-          
-       ]
-    },
-    {
-       "patientInfo":{
-          "passportNumber":"101032",
-          "name":"Egor Gabov",
-          "surname":"Gabov",
-          "gender":"None",
-          "age":"39",
-          "birthDay":"2000-10-10",
-          "country":"Russia",
-          "city":"спб"
-       },
-       "patientDiseases":[
-          {
-             "name":"COVID-19",
-             "diseaseStart":"2020-10-10",
-             "diseaseEnd":"2020-10-10"
-          }
-       ]
-    }
- ]*/
 
 const Genres = ({ values }) => {
     return (
@@ -160,10 +116,12 @@ function PatientBase() {
 
     useEffect(() => {
         (async () => {
-          const result = await axios("/getAllDisease");
+          const result = await axios("/getAllPatients");
+          console.log(result.data);
           setData(result.data);
         })();
       }, []);
+
 
     function updateData(newData) {
         setData(newData);

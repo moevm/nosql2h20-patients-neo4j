@@ -87,8 +87,8 @@ class PatientResume extends Component {
         
         Axios.post("/postSickPerson", patientData).then(r => {
             console.log(r.data);
+            Axios.post("/addDiseaseToPerson", diseaseData);
         })
-        Axios.post("/addDiseaseToPerson", diseaseData);
     }
 
       render() {

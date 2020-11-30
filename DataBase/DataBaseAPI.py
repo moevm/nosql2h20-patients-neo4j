@@ -189,7 +189,8 @@ class GetAllPatients(Resource):
             responce += '" }, "patientDiseases" : ['
             responceSave = responce
             for _disease in _sickPerson.diseases:
-                responce += '"name" : "' + _disease.name + '", '
+                # responce += '"name" : "' + _disease.name + '", '
+                responce += '"' + _disease.name + '", '
 
             if responce != responceSave:
                 responce = responce[0:len(responce)-2]
