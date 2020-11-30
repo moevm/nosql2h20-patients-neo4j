@@ -157,8 +157,6 @@ class GetStatistic(Resource):
             print(suitablePatients)
             return suitablePatients
 
-
-
         parser = reqparse.RequestParser()
         parser.add_argument('diseaseName', type=str)
         parser.add_argument('scale', type=str)

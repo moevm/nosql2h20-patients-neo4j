@@ -8,9 +8,7 @@ from DataBase.DataBaseAPI import PostContact, PostSickPerson, \
                                  GetPatientWithFilter, GetPatientWithDisease, GetAllCountries, \
                                  GetAllDisease, GetAllCities, ExportBase, ImportBase, \
                                  GetPatientWithFilter, GetPatientWithDisease, GetStatistic
-
 from web.backend.Auth import AdminLogin, TokenRefresh, CheckIfTokenExpire
-
 
 class Server:
     host = str
@@ -49,7 +47,6 @@ class Server:
 
         self.api.add_resource(ExportBase, '/exportBase')
         self.api.add_resource(ImportBase, '/importBase')
-
 
     def run(self):
         self.app.run(self.host, self.port)

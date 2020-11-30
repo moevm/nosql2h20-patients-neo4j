@@ -19,9 +19,9 @@ class ImportExportPage extends Component {
         requestStr +=  "?pathToDataBase=" + this.state.pathToDataBase;
         console.log(this.state.pathToDataBase);
         console.log(requestStr);
-        // Axios.get(requestStr).then(res => {
-        //     console.log(res.data);
-        // })
+        Axios.get(requestStr).then(res => {
+            console.log(res.data);
+        })
     }
     exportBase() {
         let requestStr = "/exportBase";
