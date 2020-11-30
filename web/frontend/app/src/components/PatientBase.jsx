@@ -5,7 +5,6 @@ import PatientForm from "./PatientForm";
 import PatientTable from "./PatientTable";
 import "../css/PatientBase.css";
 
-let sickPersons = []
 
 const Genres = ({ values }) => {
     return (
@@ -61,23 +60,33 @@ function PatientBase() {
         []
       );
 
-    updateData({})
-    let [data, setData] = useState(sickPersons)
+    
+    let [data, setData] = useState([])
+
+    useEffect(() => {
+        (async () => {
+            await Axios.get("/getAllPatients").then(res => {
+            setData(JSON.parse(res.data));
+          })
+        })();
+      }, []);
 
     function updateData(newData) {
-        Axios.get("/getAllPatients").then(res => {
-            let jsonData = JSON.parse( res.data )
-            setData( jsonData );
-        })
+        console.log("kek")
+        setData(newData);
+        // Axios.get("/getAllPatients").then(res => {
+        //     let jsonData = JSON.parse( res.data )
+        //     setData( jsonData );
+        // })
     }
     return (
             <div className="w3-row" style={{display: "flex",alignItems: "stretch"}}>
                 <div className="w3-quarter w3-border">
                     <PatientForm updateData={updateData}/>
                 </div>
-                <div className="w3-threequarter w3-border">
+                <div className="w3-threequarter w3-border App">
                     <h2 className="w3-center">Statistics of desease</h2>
-                    <PatientTable columns={columns} data={data} />
+                    <PatientTable className="w3-center" columns={columns} data={data} style={{padding: "1rem"}}/>
                 </div>
             </div>
         )
