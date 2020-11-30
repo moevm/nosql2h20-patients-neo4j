@@ -24,7 +24,12 @@ class ImportExportPage extends Component {
         // })
     }
     exportBase() {
-        Axios.get("/exportBase").then(res => {
+        let requestStr = "/exportBase";
+        requestStr +=  "?pathToDataBase=" + this.state.pathToDataBase;
+        console.log(this.state.pathToDataBase);
+        console.log(requestStr);
+        console.log(requestStr);
+        Axios.get(requestStr).then(res => {
             console.log(res.data);
         })
     }
@@ -40,6 +45,8 @@ class ImportExportPage extends Component {
                     Export
                 </button>
                 <input
+                    type="text" 
+                    name="pathToDataBase"
                     value = {this.state.path}
                     onChange={this.handleChange}
                     placeholder="Enter path to file"
