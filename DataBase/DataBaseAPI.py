@@ -109,11 +109,11 @@ class GetStatistic(Resource):
         periodEnd = datetime.datetime.strptime(args['periodEnd'], '%Y-%m-%d').date()
         scalePeriodMap = {}
 
-        if( args['scale'] == "year" ):
+        if( args['scale'] == "Year" ):
             for year in range( periodBegin.year, periodEnd.year + 1):
                 scalePeriodMap[year] = 0
 
-        if (args['scale'] == "month"):
+        if (args['scale'] == "Month"):
             for year in range(periodBegin.year, periodEnd.year + 1):
                 if (periodBegin.year == periodEnd.year):
                     for month in range(periodBegin.month, periodEnd.month + 1):
@@ -133,7 +133,7 @@ class GetStatistic(Resource):
                 for month in range(1, 13):
                     scalePeriodMap[str(year) + "-" + str(month)] = 0
 
-        if (args['scale'] == "day"):
+        if (args['scale'] == "Day"):
             for year in range(periodBegin.year, periodEnd.year + 1):
                 for month in range(periodBegin.month, periodEnd.month + 1):
                     if( periodBegin.year == periodEnd.year and periodBegin.month == periodEnd.month ):
@@ -155,24 +155,48 @@ class GetStatistic(Resource):
                         scalePeriodMap[str(year) + "-" + str(month) + "-" + str(day)] = 0
 
         suitablePatients = []
+        _patient = {}
         for patient in SickPerson.nodes:
             for disease in patient.diseases:
                 patientDS = patient.diseases.relationship(disease).diseaseStart
-                if disease.name == args['diseaseName'] \
-                    and patient.gender == args['gender'] \
-                    and patient.city == args['city'] \
-                    and patient.age >= args['ageBegin'] \
-                    and patient.age <= args['ageEnd'] \
-                    and periodBegin <= patientDS <= periodEnd:
-
-                    if (args['scale'] == "year"):
-                        scalePeriodMap[ patientDS.year ] += 1
-                    if (args['scale'] == "month"):
-                        scalePeriodMap[ str(patientDS.year) + "-" + str(patientDS.month) ] += 1
-                    if (args['scale'] == "day"):
-                        scalePeriodMap[ str(patientDS.year) + "-" + str(patientDS.month) + "-" + str(patientDS.day)] += 1
-                    suitablePatients.append( patient )
-
+                #AGE
+                if patient.age >= args['ageBegin'] and patient.age <= args['ageEnd']:
+                    # DISEASE and PERIOD
+                    if disease.name == args['diseaseName'] and periodBegin <= patientDS <= periodEnd:
+                        # Gender M/F
+                        if patient.gender == args['gender']:
+                            # COUNTRY -> CITY
+                            if patient.country == args['country'] and patient.city == args['city']:
+                                _patient = patient
+                            # COUNTRY
+                            else :
+                                if patient.country == args['country']:
+                                    _patient = patient
+                            # WORLD
+                                if args['country'] == 'World':
+                                    _patient = patient
+                        # Gender All
+                        else:
+                            if args['gender'] == 'All':
+                            # COUNTRY -> CITY
+                                if patient.country == args['country'] and patient.city == args['city']:
+                                    _patient = patient
+                            # COUNTRY
+                                else:
+                                    if patient.country == args['country']:
+                                        _patient = patient
+                            # WORLD
+                                    if args['country'] == 'World':
+                                        _patient = patient
+                _patientDS = _patient.diseases.relationship(disease).diseaseStart
+                if (args['scale'] == "Year"):
+                    scalePeriodMap[_patientDS.year] += 1
+                if (args['scale'] == "Month"):
+                    scalePeriodMap[str(_patientDS.year) + "-" + str(_patientDS.month)] += 1
+                if (args['scale'] == "Day"):
+                    scalePeriodMap[str(_patientDS.year) + "-" + str(_patientDS.month) + "-" + str(
+                        _patientDS.day)] += 1
+                suitablePatients.append(_patient)
         response = []
         for value in scalePeriodMap.keys():
             response.append( { "xVal" : value, "yVal" : scalePeriodMap[value] } )
@@ -368,75 +392,3 @@ class GetPatientWithFilter(Resource):
         if responce == nullResponce:
             return "Patients not found"
         return "[ " + responce + " ]"
-
-'''
-# Запрос для фильтра Patient base
-class GetPatientWithFilter(Resource):
-    def get(self):
-        def printOut(responce, _sickPerson):
-            responce += '{"passportNumber" : "' + str(_sickPerson.passportNumber) + '", '
-            responce += '"name" : "' + str(_sickPerson.name) + '", '
-            responce += '"surname" : "' + str(_sickPerson.surname) + '", '
-            responce += '"gender" : "' + str(_sickPerson.gender) + '", '
-            responce += '"age" : "' + str(_sickPerson.age) + '", '
-            responce += '"country" : "' + str(_sickPerson.country) + '", '
-            responce += '"city" : "' + str(_sickPerson.city)
-            for Disease in _sickPerson.diseases:
-                responce += '" }, "patientDiseases" : [ ' + Disease.name + ','
-            responce += '] }"'
-            return responce
-
-        parser = reqparse.RequestParser()
-        parser.add_argument('disease', type=str)
-        parser.add_argument('country', type=str)
-        parser.add_argument('city', type=str)
-        parser.add_argument('gender', type=str)
-        parser.add_argument('from_age', type=int)
-        parser.add_argument('to_age', type=int)
-        parser.add_argument('time', type=int)
-        parser.add_argument('scale', type=int)
-        args = parser.parse_args()
-
-        _sickPerson = {}
-        responce = ""
-        nullResponce = ""
-        for sickPerson in SickPerson.nodes:
-            # DISEASE
-            for Disease in sickPerson.diseases:
-                if Disease.name == args['disease']:
-                    # AGE
-                    if sickPerson.age >= args['from_age'] and sickPerson.age <= args['to_age']:
-                        # M/F
-                        if sickPerson.gender == args['gender']:
-                            # COUNTRY -> CITY
-                            if sickPerson.country == args['country'] and sickPerson.city == args['city']:
-                                _sickPerson = sickPerson
-                                responce = printOut(responce, _sickPerson)
-                            # COUNTRY
-                            else:
-                                if sickPerson.country == args['country']:
-                                    _sickPerson = sickPerson
-                                    responce = printOut(responce, _sickPerson)
-                            # WORLD
-                                if args['country'] == 'World':
-                                    _sickPerson = sickPerson
-                                    responce = printOut(responce, _sickPerson)
-                        # ALL
-                        else:
-                            if args['gender'] == 'All':
-                                # COUNTRY -> CITY
-                                if sickPerson.country == args['country'] and sickPerson.city == args['city']:
-                                    _sickPerson = sickPerson
-                                    responce = printOut(responce, _sickPerson)
-                                # COUNTRY
-                                else:
-                                    if sickPerson.country == args['country']:
-                                        _sickPerson = sickPerson
-                                        responce = printOut(responce, _sickPerson)
-                                # WORLD
-                                if args['country'] == 'World':
-                                    _sickPerson = sickPerson
-                                    responce = printOut(responce, _sickPerson)
-        if responce == nullResponce:
-            return "Patients not found"       
-        '''
