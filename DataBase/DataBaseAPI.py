@@ -551,14 +551,21 @@ class ExportBase(Resource):
 
         responce = "{" + responce + "}"
 
-        with open("data.json", "w") as file:
+        parser = reqparse.RequestParser()
+        parser.add_argument('pathToDataBase', type=str)
+        args = parser.parse_args()
+
+        with open(args['pathToDataBase'], "w") as file:
             file.write(responce)
         return "Database export completed successfully"
 
 
 class ImportBase(Resource):
     def get(self):
-        with open('data_1.json') as json_file:
+        parser = reqparse.RequestParser()
+        parser.add_argument('pathToDataBase', type=str)
+        args = parser.parse_args()
+        with open(args['pathToDataBase']) as json_file:
             jsonData = json.load(json_file)
         for patient in SickPerson.nodes:
             patient.delete()
