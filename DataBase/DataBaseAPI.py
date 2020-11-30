@@ -389,8 +389,14 @@ class ExportBase(Resource):
         jsonData = json.dumps(responce)
         with open("data.json", "w") as file:
             file.write(jsonData)
-        return "Database export was a success"
+        return "Database export completed successfully"
 
+class ImportBase(Resource):
+    def get(self):
+        with open('data.json') as json_file:
+            data = json.load(json_file)
+        print(data) 
+        return "Database import completed successfully"
 
 '''
 # Запрос для фильтра Patient base
