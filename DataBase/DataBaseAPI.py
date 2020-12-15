@@ -557,7 +557,8 @@ class ExportBase(Resource):
             file.write(responce)
         return "Database export completed successfully"
 
-
+# TODO: We have to revise json struct to improve import performance
+# TODO: We have to remove redundant loops for searching patients and contacts
 class ImportBase(Resource):
     def get(self):
         parser = reqparse.RequestParser()
